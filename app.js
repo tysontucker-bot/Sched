@@ -133,8 +133,8 @@ function render(){
   rowTop.innerHTML = "";
   rowBottom.innerHTML = "";
 
-  const activities = state.activities;
-  const top = activities.slice(0, 8);
+   const top = activities.slice(0, 9);
+   const bottom = activities.slice(9);
   const bottom = activities.slice(8);
 
   top.forEach(a => rowTop.appendChild(renderCard(a)));
@@ -248,8 +248,9 @@ function reorderByDrop(id, targetRow, clientX, clientY){
     }
   }
 
-  const topIds = without.slice(0, 8).map(x => x.id);
-  const bottomIds = without.slice(8).map(x => x.id);
+   const topIds = without.slice(0, 9).map(x => x.id);
+   const bottomIds = without.slice(9).map(x => x.id);
+
 
   const rowListIds = (targetRow === "top" ? topIds : bottomIds).slice();
 
