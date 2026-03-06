@@ -135,7 +135,6 @@ function render(){
 
    const top = activities.slice(0, 9);
    const bottom = activities.slice(9);
-  const bottom = activities.slice(8);
 
   top.forEach(a => rowTop.appendChild(renderCard(a)));
   bottom.forEach(a => rowBottom.appendChild(renderCard(a)));
