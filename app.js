@@ -177,7 +177,7 @@ function renderCard(a){
     });
     timeWrap.appendChild(input);
   } else {
-    timeWrap.textContent = a.time;
+    timeWrap.textContent = formatActivityTime(a.time);
   }
 
   meta.appendChild(name);
@@ -242,15 +242,14 @@ function reorderByDrop(id, targetRow, clientX, clientY){
     const midX = r.left + r.width/2;
     const midY = r.top + r.height/2;
     // crude: compare by x then y; good enough for grid
-    if (clientY < midY || (Math.abs(clientY-midY) < r.height/2 && clientX < midX)){
+    if (clientY < midY || (Math.abs(clientY-midY) < r.height/2 && clientX < midX)){ 
       insertBeforeId = c.dataset.id;
       break;
     }
   }
 
-      const topIds = without.slice(0, 9).map(x => x.id);
-      const bottomIds = without.slice(9).map(x => x.id);
-
+  const topIds = without.slice(0, 9).map(x => x.id);
+  const bottomIds = without.slice(9).map(x => x.id);
 
   const rowListIds = (targetRow === "top" ? topIds : bottomIds).slice();
 
@@ -288,9 +287,12 @@ function tickSchedule(){
   const now = new Date();
   const nowCT = getCentralParts(now);
 
-  const ordered = [...state.activities].slice().sort((a,b)=> timeToMinutes(a.time) - timeToMinutes(b.time));
-  const startMin = timeToMinutes(ordered[0]?.time ?? "7:15");
-  const endMin = timeToMinutes(ordered[ordered.length-1]?.time ?? "14:10");
+  const ordered = [...state.activities]
+    .slice()
+    .sort((a,b)=> timeToMinutesSafe(a.time) - timeToMinutesSafe(b.time));
+
+  const startMin = timeToMinutesSafe(ordered[0]?.time ?? "7:15");
+  const endMin = timeToMinutesSafe(ordered[ordered.length-1]?.time ?? "14:10");
 
   const nowMin = nowCT.hour*60 + nowCT.minute;
 
@@ -328,10 +330,10 @@ function tickSchedule(){
   let active = null;
   let nextStartMin = endMin;
 
-  for (let i=0;i<ordered.length;i++){
+  for (let i=0;i<ordered.length;i++){ 
     const a = ordered[i];
-    const aMin = timeToMinutes(a.time);
-    const bMin = timeToMinutes(ordered[i+1]?.time ?? minutesToTime(endMin));
+    const aMin = timeToMinutesSafe(a.time);
+    const bMin = timeToMinutesSafe(ordered[i+1]?.time ?? minutesToTime(endMin));
     if (nowMin >= aMin && nowMin < bMin){
       active = a;
       nextStartMin = bMin;
@@ -345,7 +347,7 @@ function tickSchedule(){
     return;
   }
 
-  const activeStart = timeToMinutes(active.time);
+  const activeStart = timeToMinutesSafe(active.time);
   const remaining = Math.max(0, nextStartMin - nowMin);
   const total = Math.max(1, nextStartMin - activeStart);
   const elapsed = Math.min(total, nowMin - activeStart);
@@ -360,7 +362,12 @@ function tickSchedule(){
 
 function markCards({ activeId, completedBeforeMin, ordered }){
   const completedIds = new Set(
-    ordered.filter(a => timeToMinutes(a.time) < completedBeforeMin).map(a => a.id)
+    ordered
+      .filter(a => {
+        const m = timeToMinutes(a.time);
+        return m != null && m < completedBeforeMin;
+      })
+      .map(a => a.id)
   );
 
   document.querySelectorAll(".card").forEach(card => {
@@ -390,7 +397,7 @@ function setCurrentDisplay(activity, remainingMinutes){
 function setupCurrentBoxDrag(){
   // Restore pos
   const saved = safeParse(localStorage.getItem(POS_KEY));
-  if (saved && typeof saved.x === "number" && typeof saved.y === "number"){
+  if (saved && typeof saved.x === "number" && typeof saved.y === "number"){ 
     moveWithinBoard(currentBox, saved.x, saved.y);
   }
 
@@ -663,7 +670,7 @@ async function searchGlobalSymbols(q){
   const url = `https://globalsymbols.com/api/v1/symbols/search?query=${encodeURIComponent(q)}`;
   const res = await fetch(url, { mode: "cors" });
   if (!res.ok) return [];
-  const data = await res.json();
+  const data = res.json();
   const items = data?.results || data?.symbols || data || [];
   return (Array.isArray(items) ? items : [])
     .map(x => ({ url: x.image_url || x.png || x.url || x.image || "", label: x.name || x.label || "GlobalSymbols" }))
@@ -716,7 +723,7 @@ function safeParse(s){
 function normalizeTime(v){
   // Accept "7:15", "07:15", "715", "7 15", etc.
   const raw = String(v || "").trim();
-  const m = raw.match(/^(\d{1,2})\s*[: ]\s*(\d{2})$/) || raw.match(/^(\d{1,2})(\d{2})$/);
+  const m = raw.match(/^\s*(\d{1,2})\s*[: ]\s*(\d{2})\s*$/) || raw.match(/^\s*(\d{1,2})(\d{2})\s*$/);
   if (!m) return raw;
   let hh = parseInt(m[1], 10);
   let mm = parseInt(m[2], 10);
@@ -728,17 +735,40 @@ function normalizeTime(v){
 }
 
 function timeToMinutes(t){
-  const [hStr,mStr] = String(t).split(":");
-  const h = parseInt(hStr,10);
-  const m = parseInt(mStr,10);
-  if (Number.isNaN(h) || Number.isNaN(m)) return 0;
-  return h*60 + m;
+  const s = String(t ?? "").trim();
+  const m = s.match(/^\s*(\d{1,2}):(\d{2})\s*/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const mm = parseInt(m[2], 10);
+  if (Number.isNaN(h) || Number.isNaN(mm)) return null;
+  if (h < 0 || h > 23 || mm < 0 || mm > 59) return null;
+  return h*60 + mm;
+}
+
+function timeToMinutesSafe(t){
+  const m = timeToMinutes(t);
+  // invalid times sort last and do not get marked completed
+  return m == null ? (24*60 + 1) : m;
 }
 
 function minutesToTime(min){
   const h = Math.floor(min/60);
   const m = min%60;
   return `${h}:${String(m).padStart(2,"0")}`;
+}
+
+function minutesToAmPm(min){
+  const h24 = Math.floor(min/60) % 24;
+  const m = min % 60;
+  const ampm = h24 >= 12 ? "PM" : "AM";
+  const h12 = (h24 % 12) || 12;
+  return `${h12}:${String(m).padStart(2,"0")} ${ampm}`;
+}
+
+function formatActivityTime(timeStr){
+  const mins = timeToMinutes(timeStr);
+  if (mins == null) return String(timeStr ?? "");
+  return minutesToAmPm(mins);
 }
 
 function formatRemaining(mins){
