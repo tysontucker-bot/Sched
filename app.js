@@ -248,8 +248,8 @@ function reorderByDrop(id, targetRow, clientX, clientY){
     }
   }
 
-   const topIds = without.slice(0, 9).map(x => x.id);
-   const bottomIds = without.slice(9).map(x => x.id);
+      const topIds = without.slice(0, 9).map(x => x.id);
+      const bottomIds = without.slice(9).map(x => x.id);
 
 
   const rowListIds = (targetRow === "top" ? topIds : bottomIds).slice();
