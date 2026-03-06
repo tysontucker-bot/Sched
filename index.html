@@ -7,17 +7,13 @@
     <title>Classroom Visual Schedule</title>
 </head>
 <body>
-    <div class="schedule-container">
-        <div class="top-section">
-            <!-- Top section for activities -->
-        </div>
-        <div class="bottom-section">
-            <!-- Bottom section for activities -->
-        </div>
-        <div class="current-activity" draggable="true">
-            <!-- Current activity box -->
-        </div>
-        <div class="central-time-clock"></div>
+    <div id="schedule">
+        <!-- Schedule rows will be dynamically injected here -->
+    </div>
+    <div id="central-display">
+        <h2>Current Time</h2>
+        <div id="current-time"></div>
+        <div id="timer-mask">Timer: <span id="timer">00:00</span></div>
     </div>
     <script src="app.js"></script>
 </body>
