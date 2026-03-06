@@ -1,20 +1,105 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Classroom Visual Schedule</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Classroom Visual Schedule</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-    <div id="schedule">
-        <!-- Schedule rows will be dynamically injected here -->
+  <div id="board" class="board">
+    <div class="topbar">
+      <div class="time" id="currentTime">--:-- --</div>
+
+      <div class="topbar-actions">
+        <button class="btn" id="btnVideos">Videos</button>
+        <button class="btn" id="btnMeetings">Meetings</button>
+        <button class="btn" id="btnSettings">Settings ⚙️</button>
+        <button class="btn btn-danger hidden" id="btnReset">Reset Schedule</button>
+      </div>
     </div>
-    <div id="central-display">
-        <h2>Current Time</h2>
-        <div id="current-time"></div>
-        <div id="timer-mask">Timer: <span id="timer">00:00</span></div>
+
+    <div class="layout">
+      <div class="rows">
+        <div class="row" id="rowTop" aria-label="Top row"></div>
+        <div class="row" id="rowBottom" aria-label="Bottom row"></div>
+      </div>
     </div>
-    <script src="app.js"></script>
+
+    <div id="currentBox" class="current-box" role="region" aria-label="Current activity">
+      <div class="current-mask" id="currentMask"></div>
+      <div class="current-content">
+        <img id="currentIcon" class="current-icon" alt="" />
+        <div id="currentName" class="current-name">-</div>
+        <div id="currentRemaining" class="current-remaining">-</div>
+      </div>
+      <div class="current-hint">Drag me</div>
+    </div>
+
+    <div class="modal-overlay hidden" id="videosOverlay" role="dialog" aria-modal="true">
+      <div class="modal" aria-label="Video library">
+        <div class="modal-header">
+          <div class="modal-title">Video Library</div>
+          <button class="xbtn" id="closeVideos">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="video-grid" id="videoButtons"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="meetingsOverlay" role="dialog" aria-modal="true">
+      <div class="modal" aria-label="Meetings">
+        <div class="modal-header">
+          <div class="modal-title">Meetings</div>
+          <button class="xbtn" id="closeMeetings">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="meetings-list">
+            <button class="btn btn-yellow" id="openMorningSlides">Morning Meeting Slides</button>
+            <button class="btn btn-yellow" id="openAfternoonSlides">Afternoon Meeting Slides</button>
+            <button class="btn btn-yellow" id="openPowerSchool">PowerSchool</button>
+            <div class="hint" id="afternoonHint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="editOverlay" role="dialog" aria-modal="true">
+      <div class="modal edit-modal" aria-label="Edit activity">
+        <div class="modal-header">
+          <div class="modal-title" id="editTitle">Edit Activity</div>
+          <button class="xbtn" id="closeEdit">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="edit-actions">
+            <input id="symbolQuery" class="text-input" placeholder="Search symbols (e.g., 'math', 'recess')" />
+            <div class="edit-buttons">
+              <button class="btn btn-yellow" id="btnSearchCurrent">Search to Current Activity</button>
+              <button class="btn btn-yellow" id="btnChangeName">Change Name</button>
+              <button class="btn btn-yellow" id="btnSearchSymbols">Change Symbol</button>
+            </div>
+          </div>
+
+          <div class="spinner hidden" id="symbolSpinner">Loading…</div>
+          <div class="error hidden" id="symbolError">No symbols found.</div>
+
+          <div class="symbol-grid" id="symbolResults"></div>
+
+          <div class="hint">Tip: Click a symbol to apply immediately.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="floatLayer" class="float-layer" aria-label="Floating windows"></div>
+  </div>
+
+  <script src="./app.js"></script>
 </body>
 </html>
