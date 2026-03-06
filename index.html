@@ -3,18 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
     <title>Classroom Visual Schedule</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="schedule">
-        <!-- Schedule rows will be dynamically injected here -->
+    <div id="app">
+        <div class="top-bar">
+            <div class="current-time" id="time-display">Loading...</div>
+            <div class="menu-buttons">
+                <button id="videos-button">Videos</button>
+                <button id="meetings-button">Meetings</button>
+                <button id="settings-button">Settings</button>
+            </div>
+        </div>
+        <div class="rows">
+            <div class="schedule-row">
+                <div class="schedule-card">Math</div>
+                <div class="schedule-card">Arts</div>
+            </div>
+            <div class="schedule-row">
+                <div class="schedule-card">Lunch</div>
+                <div class="schedule-card">Science</div>
+            </div>
+        </div>
+        <div class="current-activity-box">Current Activity</div>
     </div>
-    <div id="central-display">
-        <h2>Current Time</h2>
-        <div id="current-time"></div>
-        <div id="timer-mask">Timer: <span id="timer">00:00</span></div>
-    </div>
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
