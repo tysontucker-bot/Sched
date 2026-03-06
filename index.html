@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classroom Visual Schedule</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #8BC34A;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Top control bar ── */
+    #top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 500;
+      background: rgba(139,195,74,0.85);
+      backdrop-filter: blur(4px);
+    }
+
+    #current-time {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #000;
+    }
+
+    #top-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      background: rgba(255,255,255,0.3);
+      border: 3px solid #000;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .top-btn:hover { transform: scale(1.07); }
+
+    #btn-reset {
+      background: #ff6b6b;
+      display: none;
+    }
+
+    /* ── Main board ── */
+    #board {
+      padding-top: 70px;
+      padding-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 0 8px;
+    }
+
+    /* ── Activity card ── */
+    .card {
+      background: #fff;
+      border: 5px solid #000;
+      border-radius: 10px;
+      width: 110px;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 6px 4px 4px;
+      position: relative;
+      cursor: default;
+      transition: transform 0.15s, background 0.2s;
+      user-select: none;
+    }
+    .card:hover { transform: scale(1.04); }
+    .card.active {
+      background: #FFD54F;
+      transform: scale(1.05);
+    }
+    .card.completed { opacity: 0.75; }
+
+    .card-icon {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .card-name {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-align: center;
+      margin-top: 4px;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .card-time {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #555;
+      margin-top: 2px;
+    }
+    .card-time-input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      width: 60px;
+      text-align: center;
+      border: 2px solid #000;
+      border-radius: 4px;
+      margin-top: 2px;
+      display: none;
+    }
+
+    /* checkmark overlay */
+    .card-check {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #2E7D32;
+      pointer-events: none;
+      border-radius: 6px;
+    }
+    .card.completed .card-check { display: flex; }
+
+    /* delete button (edit mode) */
+    .card-delete {
+      position: absolute;
+      top: 3px; right: 3px;
+      background: #ff6b6b;
+      border: 2px solid #000;
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      line-height: 1;
+    }
+
+    body.edit-mode .card { cursor: move; }
+    body.edit-mode .card-delete { display: flex; }
+    body.edit-mode .card-time { display: none; }
+    body.edit-mode .card-time-input { display: block; }
+    body.edit-mode #btn-reset { display: inline-block; }
+
+    /* drag ghost */
+    .card.dragging { opacity: 0.4; }
+    .card.drag-over { border-style: dashed; border-color: #FFD54F; }
+
+    /* ── Central display box ── */
+    #center-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 350px;
+      height: 350px;
+      background: #fff;
+      border: 6px solid #000;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 400;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #center-box:active { cursor: grabbing; }
+
+    #center-timer-mask {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 0%;
+      background: rgba(255,213,79,0.6);
+      pointer-events: none;
+      transition: height 1s linear;
+    }
+
+    #center-icon {
+      width: 250px;
+      height: 250px;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+    }
+    #center-name {
+      font-size: 1.1rem;
+      font-weight: 900;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      padding: 0 8px;
+    }
+    #center-remaining {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #333;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: #fff;
+      border: 6px solid #000;
+      border-radius: 12px;
+      padding: 20px;
+      min-width: 320px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      background: #ff6b6b;
+      border: 2px solid #000;
+      border-radius: 6px;
+      font-weight: 900;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* video modal buttons */
+    .video-btn {
+      display: block;
+      width: 100%;
+      background: #FFD54F;
+      border: 3px solid #000;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.15s;
+      text-align: left;
+    }
+    .video-btn:hover { transform: scale(1.03); }
+
+    /* meetings modal buttons */
+    .meet-btn {
+      display: block;
+      width: 100%;
+      background: rgba(255,255,255,0.3);
+      border: 3px solid #000;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.15s;
+      text-decoration: none;
+      color: #000;
+      text-align: left;
+    }
+    .meet-btn:hover { transform: scale(1.03); }
+    .meet-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    /* ── Draggable video frames ── */
+    .video-frame {
+      position: fixed;
+      width: 560px;
+      background: #fff;
+      border: 6px solid #000;
+      border-radius: 10px;
+      z-index: 600;
+      overflow: hidden;
+      min-width: 200px;
+    }
+    .video-frame-header {
+      background: #FFD54F;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: grab;
+      font-weight: 900;
+      font-size: 0.9rem;
+      border-bottom: 3px solid #000;
+    }
+    .video-frame-header:active { cursor: grabbing; }
+    .video-close {
+      background: #ff6b6b;
+      border: 2px solid #000;
+      border-radius: 6px;
+      padding: 1px 8px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+    }
+    .video-frame iframe {
+      display: block;
+      width: 100%;
+      height: 380px;
+      border: none;
+    }
+
+    /* ── Activity edit modal ── */
+    #edit-modal .modal-box { min-width: 400px; }
+    #edit-search-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 3px solid #000;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .edit-action-btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 900;
+      background: #FFD54F;
+      border: 3px solid #000;
+      border-radius: 8px;
+      padding: 7px 12px;
+      cursor: pointer;
+      margin-right: 6px;
+      margin-bottom: 8px;
+      transition: transform 0.15s;
+    }
+    .edit-action-btn:hover { transform: scale(1.05); }
+
+    #symbol-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .sym-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 4px;
+      transition: border-color 0.15s;
+    }
+    .sym-item:hover { border-color: #FFD54F; }
+    .sym-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+    .sym-item span {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 3px;
+    }
+
+    #sym-spinner {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      font-weight: 700;
+    }
+    #sym-error {
+      display: none;
+      color: #ff6b6b;
+      font-weight: 700;
+      padding: 10px 0;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ TOP BAR ══════════ -->
+<div id="top-bar">
+  <div id="current-time">--:-- --</div>
+  <div id="top-buttons">
+    <button class="top-btn" id="btn-videos">▶ Videos</button>
+    <button class="top-btn" id="btn-meetings">📅 Meetings</button>
+    <button class="top-btn" id="btn-settings">⚙️ Settings</button>
+    <button class="top-btn" id="btn-reset">🔄 Reset Schedule</button>
+  </div>
+</div>
+
+<!-- ══════════ MAIN BOARD ══════════ -->
+<div id="board">
+  <div class="row" id="row-top"></div>
+  <div class="row" id="row-bottom"></div>
+</div>
+
+<!-- ══════════ CENTRAL DISPLAY BOX ══════════ -->
+<div id="center-box">
+  <div id="center-timer-mask"></div>
+  <img id="center-icon" src="" alt="current activity" />
+  <div id="center-name">—</div>
+  <div id="center-remaining"></div>
+</div>
+
+<!-- ══════════ VIDEO LIBRARY MODAL ══════════ -->
+<div class="modal-overlay" id="videos-modal">
+  <div class="modal-box">
+    <div class="modal-title">▶ Video Library</div>
+    <button class="modal-close" id="close-videos">✕</button>
+    <button class="video-btn" data-ytid="KuMdgPu4HEI" data-title="Morning">☀️ Morning</button>
+    <button class="video-btn" data-ytid="-5ajUAyLUOg" data-title="Roller Coaster">🎢 Roller Coaster</button>
+    <button class="video-btn" data-ytid="i_JQwhPKzdI" data-title="Snack">🍎 Snack</button>
+    <button class="video-btn" data-ytid="JegZYWlaq8w" data-title="Lunch">🍽️ Lunch</button>
+    <button class="video-btn" data-ytid="o_YV7lSEbO0" data-title="Break">☕ Break</button>
+    <button class="video-btn" data-ytid="eji41cH7R54" data-title="Afternoon">🌤️ Afternoon</button>
+  </div>
+</div>
+
+<!-- ══════════ MEETINGS MODAL ══════════ -->
+<div class="modal-overlay" id="meetings-modal">
+  <div class="modal-box">
+    <div class="modal-title">📅 Meetings</div>
+    <button class="modal-close" id="close-meetings">✕</button>
+    <a class="meet-btn" id="btn-morning-meeting" href="https://docs.google.com/presentation/d/1ehGBSHcag-uoCxJVIuGAsHY7kQ3AVrHTxWZ3AJjC_W8/edit?slide=id.ge9e5be468d_2_0#slide=id.ge9e5be468d_2_0" target="_blank">☀️ Morning Meeting</a>
+    <a class="meet-btn" id="btn-afternoon-meeting" href="#" target="_blank">🌤️ Afternoon Meeting</a>
+    <a class="meet-btn" href="https://saisd.powerschool.com/teachers/home.html" target="_blank">🏫 PowerSchool</a>
+  </div>
+</div>
+
+<!-- ══════════ ACTIVITY EDIT MODAL ══════════ -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="edit-modal-title">Edit Activity</div>
+    <button class="modal-close" id="close-edit-modal">✕</button>
+    <input type="text" id="edit-search-input" placeholder="Search symbols..." />
+    <div>
+      <button class="edit-action-btn" id="btn-search-current">🔍 Search Current Activity</button>
+      <button class="edit-action-btn" id="btn-change-name">✏️ Change Name</button>
+      <button class="edit-action-btn" id="btn-change-symbol">🖼️ Change Symbol</button>
+    </div>
+    <div id="sym-spinner">Searching…</div>
+    <div id="sym-error">No symbols found.</div>
+    <div id="symbol-grid"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  DEFAULT SCHEDULE
+// ══════════════════════════════════════════════════
+const DEFAULT_SCHEDULE = [
+  { name: "Breakfast",          time: "7:15",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
+  { name: "Writing",            time: "8:00",  icon: "https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/writing.png.varianted-skin.png" },
+  { name: "Morning Meeting",    time: "8:05",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
+  { name: "English",            time: "8:30",  icon: "https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg" },
+  { name: "Attendance",         time: "8:50",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
+  { name: "Recess",             time: "8:55",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
+  { name: "Break",              time: "9:30",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
+  { name: "Snack",              time: "9:50",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png" },
+  { name: "Math",               time: "10:05", icon: "https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png" },
+  { name: "PE",                 time: "10:40", icon: "https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/PE.svg.varianted-skin.svg" },
+  { name: "Music",              time: "11:00", icon: "https://d18vdu4p71yql0.cloudfront.net/libraries/noun-project/Music-24b69f41d0.svg" },
+  { name: "Lunch",              time: "11:30", icon: "https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg" },
+  { name: "Swing",              time: "12:00", icon: "https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
+  { name: "Rest",               time: "12:30", icon: "https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
+  { name: "Desk Work",          time: "1:10",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
+  { name: "Afternoon Meeting",  time: "1:15",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
+  { name: "Television",         time: "1:45",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg" },
+  { name: "Bus",                time: "2:10",  icon: "https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg" },
+];
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let schedule = loadSchedule();
+let editMode = false;
+let editingCardIndex = null;   // index in schedule[] for activity edit modal
+let dragSrcIndex = null;
+
+// ── localStorage helpers ──
+function loadSchedule() {
+  try {
+    const saved = localStorage.getItem('sched_v1');
+    if (saved) return JSON.parse(saved);
+  } catch (e) { /* ignore */ }
+  return DEFAULT_SCHEDULE.map(a => ({ ...a }));
+}
+function saveSchedule() {
+  localStorage.setItem('sched_v1', JSON.stringify(schedule));
+}
+
+// ══════════════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════════════
+// School day never starts before 7:00 AM, so any hour < 7 must be an
+// afternoon time expressed without AM/PM (e.g. "1:10" = 1:10 PM = 13:10).
+const SCHOOL_START_HOUR = 7;
+// Duration assumed for the last activity when no next activity exists.
+const LAST_ACTIVITY_DURATION_MIN = 30;
+// Top-bar height used to clamp draggable elements below the bar.
+const TOP_BAR_HEIGHT = 60;
+// Cascade offset constants for stacking video frames.
+const VIDEO_FRAME_INITIAL_OFFSET = 80;
+const VIDEO_FRAME_CASCADE_LIMIT  = 5;
+const VIDEO_FRAME_CASCADE_STEP   = 30;
+// Days of week
+const SUNDAY = 0, MONDAY = 1, WEDNESDAY = 3, SATURDAY = 6;
+// Fallback icon shown when a card image fails to load.
+const FALLBACK_ICON_SVG = 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2280%22%20height%3D%2280%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2240%22%20y%3D%2244%22%20text-anchor%3D%22middle%22%20font-size%3D%2212%22%20fill%3D%22%23999%22%3E%3F%3C/text%3E%3C/svg%3E';
+
+// ══════════════════════════════════════════════════
+//  TIME UTILITIES  (Central Time)
+// ══════════════════════════════════════════════════
+function getCentralNow() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+}
+
+// Parse "H:MM" or "HH:MM" (no AM/PM) into {h, m}.
+// Times with hour < SCHOOL_START_HOUR are treated as afternoon (PM):
+//   "1:10" → 13:10,  "2:10" → 14:10,  "7:15" → 07:15
+function parseTime(str) {
+  const [h, m] = str.split(':').map(Number);
+  let hour = h;
+  if (hour < SCHOOL_START_HOUR) hour += 12;
+  return { h: hour, m };
+}
+
+// Minutes since midnight for a parsed time
+function toMinutes({ h, m }) { return h * 60 + m; }
+
+// Format "X min remaining" or "X hr Y min remaining"
+function formatRemaining(ms) {
+  if (ms <= 0) return '';
+  const totalMin = Math.floor(ms / 60000);
+  if (totalMin < 60) return `${totalMin} min remaining`;
+  const hr = Math.floor(totalMin / 60);
+  const min = totalMin % 60;
+  return min ? `${hr} hr ${min} min remaining` : `${hr} hr remaining`;
+}
+
+// ══════════════════════════════════════════════════
+//  BUILD / RENDER DOM
+// ══════════════════════════════════════════════════
+const rowTop    = document.getElementById('row-top');
+const rowBottom = document.getElementById('row-bottom');
+
+function buildBoard() {
+  rowTop.innerHTML = '';
+  rowBottom.innerHTML = '';
+  schedule.forEach((act, i) => {
+    const card = createCard(act, i);
+    if (i < 8) rowTop.appendChild(card);
+    else        rowBottom.appendChild(card);
+  });
+}
+
+function createCard(act, index) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.dataset.index = index;
+
+  // icon
+  const img = document.createElement('img');
+  img.className = 'card-icon';
+  img.src = act.icon;
+  img.alt = act.name;
+  img.onerror = () => { img.src = FALLBACK_ICON_SVG; };
+
+  // name
+  const name = document.createElement('div');
+  name.className = 'card-name';
+  name.textContent = act.name;
+
+  // time (static display)
+  const time = document.createElement('div');
+  time.className = 'card-time';
+  time.textContent = act.time;
+
+  // time input (edit mode)
+  const timeInput = document.createElement('input');
+  timeInput.type = 'text';
+  timeInput.className = 'card-time-input';
+  timeInput.value = act.time;
+  timeInput.addEventListener('change', () => {
+    schedule[index].time = timeInput.value.trim();
+    time.textContent = schedule[index].time;
+    saveSchedule();
+    updateVisualStates();
+  });
+
+  // checkmark overlay
+  const check = document.createElement('div');
+  check.className = 'card-check';
+  check.textContent = '✔';
+
+  // delete button
+  const del = document.createElement('button');
+  del.className = 'card-delete';
+  del.textContent = '✕';
+  del.addEventListener('click', e => {
+    e.stopPropagation();
+    schedule.splice(index, 1);
+    saveSchedule();
+    buildBoard();
+    updateVisualStates();
+  });
+
+  div.appendChild(del);
+  div.appendChild(img);
+  div.appendChild(name);
+  div.appendChild(time);
+  div.appendChild(timeInput);
+  div.appendChild(check);
+
+  // click → open edit modal (only in edit mode)
+  div.addEventListener('click', () => {
+    if (editMode) openEditModal(index);
+  });
+
+  // drag-and-drop reordering
+  div.setAttribute('draggable', 'true');
+  div.addEventListener('dragstart', e => {
+    dragSrcIndex = index;
+    div.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  div.addEventListener('dragend', () => { div.classList.remove('dragging'); });
+  div.addEventListener('dragover', e => {
+    if (!editMode) return;
+    e.preventDefault();
+    div.classList.add('drag-over');
+  });
+  div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+  div.addEventListener('drop', e => {
+    e.preventDefault();
+    div.classList.remove('drag-over');
+    if (!editMode || dragSrcIndex === null || dragSrcIndex === index) return;
+    const moved = schedule.splice(dragSrcIndex, 1)[0];
+    schedule.splice(index, 0, moved);
+    saveSchedule();
+    buildBoard();
+    updateVisualStates();
+    dragSrcIndex = null;
+  });
+
+  return div;
+}
+
+// ══════════════════════════════════════════════════
+//  VISUAL STATE UPDATE  (active / completed / center box)
+// ══════════════════════════════════════════════════
+function updateVisualStates() {
+  const now = getCentralNow();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const nowSec = now.getSeconds();
+
+  // Build minute-of-day list
+  const times = schedule.map(a => toMinutes(parseTime(a.time)));
+  const firstMin = times[0] ?? 0;
+  const lastMin  = times[times.length - 1] ?? 0;
+
+  // Determine active index
+  let activeIdx = -1;
+  if (nowMin >= firstMin && nowMin <= lastMin) {
+    for (let i = times.length - 1; i >= 0; i--) {
+      if (nowMin >= times[i]) { activeIdx = i; break; }
+    }
+  }
+
+  // Update all cards
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    const idx = parseInt(card.dataset.index);
+    card.classList.remove('active', 'completed');
+    if (idx === activeIdx) {
+      card.classList.add('active');
+    } else if (idx < activeIdx || (activeIdx === -1 && nowMin > lastMin)) {
+      card.classList.add('completed');
+    }
+  });
+
+  // Central display
+  const centerIcon      = document.getElementById('center-icon');
+  const centerName      = document.getElementById('center-name');
+  const centerRemaining = document.getElementById('center-remaining');
+  const timerMask       = document.getElementById('center-timer-mask');
+
+  if (activeIdx >= 0) {
+    const act = schedule[activeIdx];
+    centerIcon.src  = act.icon;
+    centerName.textContent = act.name;
+
+    // calculate time remaining
+    const nextMin = activeIdx + 1 < times.length ? times[activeIdx + 1] : (times[activeIdx] + LAST_ACTIVITY_DURATION_MIN);
+    const actStartMs = times[activeIdx] * 60 * 1000;
+    const actEndMs   = nextMin * 60 * 1000;
+    const nowMs      = (nowMin * 60 + nowSec) * 1000;
+    const remaining  = actEndMs - nowMs;
+    const duration   = actEndMs - actStartMs;
+    centerRemaining.textContent = formatRemaining(remaining);
+
+    // timer mask: fills from bottom as time passes → pct = elapsed/total
+    const elapsed = nowMs - actStartMs;
+    const pct = duration > 0 ? Math.max(0, Math.min(100, (elapsed / duration) * 100)) : 0;
+    timerMask.style.height = pct + '%';
+  } else {
+    centerIcon.src  = '';
+    centerName.textContent = '—';
+    centerRemaining.textContent = nowMin < firstMin ? 'School starts at ' + schedule[0].time : '';
+    timerMask.style.height = '0%';
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════════════════
+const currentTimeEl = document.getElementById('current-time');
+function updateClock() {
+  const now = getCentralNow();
+  let h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  currentTimeEl.textContent = `${h}:${m} ${ampm}`;
+}
+
+// ══════════════════════════════════════════════════
+//  DRAGGABLE CENTER BOX
+// ══════════════════════════════════════════════════
+(function initDraggableCenterBox() {
+  const box = document.getElementById('center-box');
+  let isDragging = false, startX, startY, startLeft, startTop;
+
+  // Convert from transform-based centering to absolute positioning
+  function toAbsolute() {
+    const rect = box.getBoundingClientRect();
+    box.style.transform = 'none';
+    box.style.left = rect.left + 'px';
+    box.style.top  = rect.top  + 'px';
+  }
+
+  box.addEventListener('mousedown', e => {
+    if (e.target.closest('button, input, a')) return;
+    isDragging = true;
+    if (box.style.transform !== 'none') toAbsolute();
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = parseInt(box.style.left);
+    startTop  = parseInt(box.style.top);
+    box.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const newLeft = Math.max(0, Math.min(window.innerWidth  - box.offsetWidth,  startLeft + dx));
+    const newTop  = Math.max(TOP_BAR_HEIGHT, Math.min(window.innerHeight - box.offsetHeight, startTop  + dy));
+    box.style.left = newLeft + 'px';
+    box.style.top  = newTop  + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    box.style.cursor = 'grab';
+  });
+})();
+
+// ══════════════════════════════════════════════════
+//  VIDEO FRAMES (draggable)
+// ══════════════════════════════════════════════════
+let videoFrameCount = 0;
+function openVideoFrame(ytid, title) {
+  videoFrameCount++;
+  const frame = document.createElement('div');
+  frame.className = 'video-frame';
+  // cascade position
+  frame.style.top  = (VIDEO_FRAME_INITIAL_OFFSET + (videoFrameCount % VIDEO_FRAME_CASCADE_LIMIT) * VIDEO_FRAME_CASCADE_STEP) + 'px';
+  frame.style.left = (VIDEO_FRAME_INITIAL_OFFSET + (videoFrameCount % VIDEO_FRAME_CASCADE_LIMIT) * VIDEO_FRAME_CASCADE_STEP) + 'px';
+
+  const header = document.createElement('div');
+  header.className = 'video-frame-header';
+  header.innerHTML = `<span>${title}</span>`;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'video-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => document.body.removeChild(frame));
+  header.appendChild(closeBtn);
+
+  const iframeEl = document.createElement('iframe');
+  iframeEl.src = `https://www.youtube.com/embed/${ytid}?autoplay=1`;
+  iframeEl.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+  iframeEl.allowFullscreen = true;
+
+  frame.appendChild(header);
+  frame.appendChild(iframeEl);
+  document.body.appendChild(frame);
+
+  // make draggable
+  let isDrag = false, sx, sy, sl, st;
+  header.addEventListener('mousedown', e => {
+    isDrag = true;
+    sx = e.clientX; sy = e.clientY;
+    sl = parseInt(frame.style.left) || 80;
+    st = parseInt(frame.style.top)  || 80;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!isDrag) return;
+    const newL = Math.max(0, Math.min(window.innerWidth  - frame.offsetWidth,  sl + e.clientX - sx));
+    const newT = Math.max(TOP_BAR_HEIGHT, Math.min(window.innerHeight - frame.offsetHeight, st + e.clientY - sy));
+    frame.style.left = newL + 'px';
+    frame.style.top  = newT + 'px';
+  });
+  document.addEventListener('mouseup', () => { isDrag = false; });
+}
+
+// ══════════════════════════════════════════════════
+//  MEETINGS MODAL — set afternoon URL based on weekday
+// ══════════════════════════════════════════════════
+function setupMeetingsModal() {
+  const btnAfternoon = document.getElementById('btn-afternoon-meeting');
+  const now = getCentralNow();
+  const dow = now.getDay();
+  if (dow === SUNDAY || dow === SATURDAY) {
+    btnAfternoon.classList.add('disabled');
+    btnAfternoon.removeAttribute('href');
+    btnAfternoon.removeAttribute('target');
+  } else if (dow === MONDAY || dow === WEDNESDAY) {   // Mon / Wed
+    btnAfternoon.href = 'https://docs.google.com/presentation/d/1Ky8pVzQlebqWIBbcfNAMni8VbtqwMehrAO5tnsCzsis/edit?slide=id.p1#slide=id.p1';
+  } else {                                // Tue / Thu / Fri
+    btnAfternoon.href = 'https://docs.google.com/presentation/d/1lpEoEn4zEsGPOeRcUa9bM8ZMIf38VMEwt0lImswLBSA/edit?slide=id.p1#slide=id.p1';
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  EDIT MODE
+// ══════════════════════════════════════════════════
+function setEditMode(on) {
+  editMode = on;
+  if (on) document.body.classList.add('edit-mode');
+  else    document.body.classList.remove('edit-mode');
+}
+
+document.getElementById('btn-settings').addEventListener('click', () => setEditMode(!editMode));
+
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (confirm('Reset schedule to defaults?')) {
+    schedule = DEFAULT_SCHEDULE.map(a => ({ ...a }));
+    saveSchedule();
+    buildBoard();
+    updateVisualStates();
+  }
+});
+
+// ══════════════════════════════════════════════════
+//  ACTIVITY EDIT MODAL
+// ══════════════════════════════════════════════════
+function openEditModal(index) {
+  editingCardIndex = index;
+  const act = schedule[index];
+  document.getElementById('edit-modal-title').textContent = `Edit: ${act.name}`;
+  document.getElementById('edit-search-input').value = act.name;
+  document.getElementById('symbol-grid').innerHTML = '';
+  document.getElementById('sym-error').style.display = 'none';
+  document.getElementById('sym-spinner').style.display = 'none';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+document.getElementById('close-edit-modal').addEventListener('click', () => {
+  document.getElementById('edit-modal').classList.remove('open');
+});
+
+document.getElementById('btn-search-current').addEventListener('click', () => {
+  if (editingCardIndex === null) return;
+  const q = schedule[editingCardIndex].name;
+  document.getElementById('edit-search-input').value = q;
+  searchSymbols(q);
+});
+
+document.getElementById('btn-change-name').addEventListener('click', () => {
+  if (editingCardIndex === null) return;
+  const newName = prompt('New activity name:', schedule[editingCardIndex].name);
+  if (newName && newName.trim()) {
+    schedule[editingCardIndex].name = newName.trim();
+    saveSchedule();
+    buildBoard();
+    updateVisualStates();
+    document.getElementById('edit-modal-title').textContent = `Edit: ${newName.trim()}`;
+  }
+});
+
+document.getElementById('btn-change-symbol').addEventListener('click', () => {
+  const q = document.getElementById('edit-search-input').value.trim();
+  if (q) searchSymbols(q);
+});
+
+async function searchSymbols(query) {
+  const grid    = document.getElementById('symbol-grid');
+  const spinner = document.getElementById('sym-spinner');
+  const errEl   = document.getElementById('sym-error');
+  grid.innerHTML = '';
+  errEl.style.display = 'none';
+  spinner.style.display = 'block';
+
+  const results = [];
+  const seen = new Set();
+
+  async function fetchOpenSymbols(q) {
+    try {
+      const res = await fetch(`https://www.opensymbols.org/api/v2/symbols/search?q=${encodeURIComponent(q)}&locale=en&safe=1`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        data.forEach(s => {
+          const url = s.image_url;
+          if (url && !seen.has(url)) { seen.add(url); results.push({ url, label: s.name || q }); }
+        });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  async function fetchGlobalSymbols(q) {
+    try {
+      const res = await fetch(`https://globalsymbols.com/api/v1/labels/search?query=${encodeURIComponent(q)}&language_iso_code=en-US&page_size=24`);
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : (data.data || []);
+      items.forEach(s => {
+        const url = s.picto && (s.picto.image_url || s.picto.image_file);
+        if (url && !seen.has(url)) { seen.add(url); results.push({ url, label: s.text || q }); }
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  await Promise.allSettled([fetchOpenSymbols(query), fetchGlobalSymbols(query)]);
+  spinner.style.display = 'none';
+
+  if (results.length === 0) {
+    errEl.style.display = 'block';
+    return;
+  }
+
+  results.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'sym-item';
+    const img = document.createElement('img');
+    img.src = r.url;
+    img.alt = r.label;
+    img.onerror = () => item.remove();
+    const span = document.createElement('span');
+    span.textContent = r.label;
+    item.appendChild(img);
+    item.appendChild(span);
+    item.addEventListener('click', () => {
+      if (editingCardIndex === null) return;
+      schedule[editingCardIndex].icon = r.url;
+      saveSchedule();
+      buildBoard();
+      updateVisualStates();
+      document.getElementById('edit-modal').classList.remove('open');
+    });
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL TOGGLES
+// ══════════════════════════════════════════════════
+document.getElementById('btn-videos').addEventListener('click', () => {
+  document.getElementById('videos-modal').classList.add('open');
+});
+document.getElementById('close-videos').addEventListener('click', () => {
+  document.getElementById('videos-modal').classList.remove('open');
+});
+
+document.getElementById('btn-meetings').addEventListener('click', () => {
+  setupMeetingsModal();
+  document.getElementById('meetings-modal').classList.add('open');
+});
+document.getElementById('close-meetings').addEventListener('click', () => {
+  document.getElementById('meetings-modal').classList.remove('open');
+});
+
+// close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// video buttons
+document.querySelectorAll('.video-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openVideoFrame(btn.dataset.ytid, btn.dataset.title);
+    document.getElementById('videos-modal').classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════════════════
+//  INIT & TICK LOOP
+// ══════════════════════════════════════════════════
+buildBoard();
+updateVisualStates();
+updateClock();
+
+setInterval(() => {
+  updateClock();
+  updateVisualStates();
+}, 1000);
+</script>
+</body>
+</html>
