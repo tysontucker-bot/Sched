@@ -133,9 +133,9 @@ function render(){
   rowTop.innerHTML = "";
   rowBottom.innerHTML = "";
 
-   const activities = state.activities;
-   const top = activities.slice(0, 9);
-   const bottom = activities.slice(9);
+  const activities = state.activities;
+  const top = activities.slice(0, 9);
+  const bottom = activities.slice(9);
 
   top.forEach(a => rowTop.appendChild(renderCard(a)));
   bottom.forEach(a => rowBottom.appendChild(renderCard(a)));
