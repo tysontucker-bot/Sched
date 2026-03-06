@@ -82,6 +82,7 @@ body{
   bottom:14px;
   display:flex;
   flex-direction:column;
+  justify-content: space-between;
   gap:12px;
 }
 
@@ -91,9 +92,8 @@ body{
   align-content:start;
   grid-auto-rows:minmax(120px, auto);
 }
-#rowTop{ grid-template-columns: repeat(8, minmax(140px, 1fr)); }
-#rowBottom{ grid-template-columns: repeat(10, minmax(140px, 1fr)); }
-
+#rowTop{ grid-template-columns: repeat(9, minmax(140px, 1fr)); }
+#rowBottom{ grid-template-columns: repeat(9, minmax(140px, 1fr)); }
 .card{
   position:relative;
   background:#fff;
