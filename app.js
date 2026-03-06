@@ -294,9 +294,25 @@ function tickSchedule(){
 
   const nowMin = nowCT.hour*60 + nowCT.minute;
 
-  // Before start
+  // Before start: show time until first activity
   if (nowMin < startMin){
-    setCurrentDisplay(null, null);
+    const next = ordered[0] ?? null;
+    const minsUntil = Math.max(0, startMin - nowMin);
+
+    if (next){
+      // show the next activity's icon + name
+      setCurrentDisplay(next, null);
+
+      // show countdown text
+      currentRemaining.textContent =
+        `Starts in ${formatRemaining(minsUntil).replace(" remaining","")}`;
+
+      // no progress yet
+      currentMask.style.height = "0%";
+    } else {
+      setCurrentDisplay(null, null);
+    }
+
     markCards({ activeId:null, completedBeforeMin: -1, ordered });
     return;
   }
