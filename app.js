@@ -133,6 +133,7 @@ function render(){
   rowTop.innerHTML = "";
   rowBottom.innerHTML = "";
 
+   const activities = state.activities;
    const top = activities.slice(0, 9);
    const bottom = activities.slice(9);
 
