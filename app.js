@@ -512,6 +512,67 @@ function dragWithinBoard(frame, handle){
 
   window.addEventListener("mouseup", () => dragging = false);
 }
+function setupResizeLockedAspect(frame, handle, aspect){
+  // aspect = width/height of the VIDEO area (not counting header)
+  // current CSS: header is 44px tall
+  const HEADER_H = 44;
+  const PAD = 8;
+
+  let resizing = false;
+  let startX = 0;
+  let startW = 0;
+
+  const minW = 320;
+
+  function clampW(w){
+    const maxW = window.innerWidth - PAD*2;
+    return clamp(w, minW, maxW);
+  }
+
+  function applyWidth(w){
+    w = clampW(w);
+
+    // Convert desired width => total frame height (video area + header)
+    const desiredVideoH = Math.round(w / aspect);
+    let totalH = desiredVideoH + HEADER_H;
+
+    // Keep within viewport height
+    const maxH = window.innerHeight - PAD*2;
+    totalH = clamp(totalH, Math.round(minW/aspect) + HEADER_H, maxH);
+
+    // Recompute width from the (possibly clamped) height so ratio stays exact
+    const finalVideoH = totalH - HEADER_H;
+    const finalW = Math.round(finalVideoH * aspect);
+
+    frame.style.width = `${finalW}px`;
+    frame.style.height = `${totalH}px`;
+
+    // Ensure resized window stays on-screen
+    const r = frame.getBoundingClientRect();
+    const maxLeft = window.innerWidth - frame.offsetWidth - PAD;
+    const maxTop = window.innerHeight - frame.offsetHeight - PAD;
+    frame.style.left = `${clamp(r.left, PAD, maxLeft)}px`;
+    frame.style.top = `${clamp(r.top, PAD, maxTop)}px`;
+  }
+
+  handle.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizing = true;
+    startX = e.clientX;
+    startW = frame.getBoundingClientRect().width;
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!resizing) return;
+    const dx = e.clientX - startX;
+    applyWidth(startW + dx);
+  });
+
+  handle.addEventListener("pointerup", () => { resizing = false; });
+  handle.addEventListener("pointercancel", () => { resizing = false; });
+}
 
 /* ------------------ Meetings ------------------ */
 
