@@ -479,9 +479,17 @@ function openVideoFloat(title, youtubeId){
   frame.appendChild(body);
   floatLayer.appendChild(frame);
 
+  // resize handle (bottom-right)
+  const resize = document.createElement("div");
+  resize.className = "float-resize";
+  frame.appendChild(resize);
+
+  setupResizeLockedAspect(frame, resize, 16/9);
+
   // drag
   dragWithinBoard(frame, header);
 }
+
 
 function dragWithinBoard(frame, handle){
   let dragging = false;
