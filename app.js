@@ -10,6 +10,7 @@
 */
 
 const STORAGE_KEY = "sched:v1";
+const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 
 const DEFAULT_ACTIVITIES = [
@@ -27,10 +28,10 @@ const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Lunch", time:"11:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg" },
   { id: uid(), name:"Swing", time:"12:00", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
   { id: uid(), name:"Rest", time:"12:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
-  { id: uid(), name:"Desk Work", time:"1:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
-  { id: uid(), name:"Afternoon Meeting", time:"1:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
-  { id: uid(), name:"Television", time:"1:45", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg" },
-  { id: uid(), name:"Bus", time:"2:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg" },
+  { id: uid(), name:"Desk Work", time:"13:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
+  { id: uid(), name:"Afternoon Meeting", time:"13:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
+  { id: uid(), name:"Television", time:"13:45", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg" },
+  { id: uid(), name:"Bus", time:"14:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg" },
 ];
 
 const VIDEOS = [
@@ -182,7 +183,7 @@ function renderCard(a){
     });
     timeWrap.appendChild(input);
   } else {
-    timeWrap.textContent = a.time;
+    timeWrap.textContent = timeToAmPmLabel(a.time);
   }
 
   meta.appendChild(name);
@@ -800,7 +801,20 @@ function dedupeByUrl(items){
 
 function loadState(){
   const saved = safeParse(localStorage.getItem(STORAGE_KEY));
-  if (saved?.activities?.length) return saved;
+  if (saved?.activities?.length){
+    if (!localStorage.getItem(MIGRATION_KEY)){
+      saved.activities.forEach(a => {
+        // Convert ambiguous 12-hour afternoon times (h:mm where h is 1..6) to 24-hour
+        const m = String(a.time || "").match(/^([1-6]):(\d{2})$/);
+        if (m){
+          a.time = `${parseInt(m[1], 10) + 12}:${m[2]}`;
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY, "1");
+    }
+    return saved;
+  }
   return { activities: structuredClone(DEFAULT_ACTIVITIES) };
 }
 
@@ -847,6 +861,19 @@ function timeToMinutes(t){
   const m = parseInt(mStr,10);
   if (Number.isNaN(h) || Number.isNaN(m)) return 0;
   return h*60 + m;
+}
+
+function minutesToAmPmLabel(min){
+  const totalMin = Math.round(min);
+  const h24 = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  const ampm = h24 < 12 ? "AM" : "PM";
+  const h12 = h24 % 12 || 12;
+  return `${h12}:${String(m).padStart(2,"0")} ${ampm}`;
+}
+
+function timeToAmPmLabel(t){
+  return minutesToAmPmLabel(timeToMinutes(t));
 }
 
 function minutesToTime(min){
