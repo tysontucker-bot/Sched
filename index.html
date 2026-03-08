@@ -41,17 +41,20 @@
       <div class="current-hint">Drag me</div>
     </div>
 
-    <div class="modal-overlay hidden" id="videosOverlay" role="dialog" aria-modal="true">
-      <div class="modal" aria-label="Video library">
-        <div class="modal-header">
-          <div class="modal-title">Video Library</div>
-          <button class="xbtn" id="closeVideos">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="video-grid" id="videoButtons"></div>
-        </div>
-      </div>
+<div class="modal-overlay hidden" id="videosOverlay" role="dialog" aria-modal="true">
+  <div class="modal" aria-label="Video library">
+    <div class="modal-header">
+      <div class="modal-title">Video Library</div>
+      <button class="xbtn" id="closeVideos">✕</button>
     </div>
+    <div class="modal-body">
+      <div class="video-grid" id="videoButtons"></div>
+    </div>
+
+    <!-- resize handle -->
+    <div class="modal-resize" id="videosResize"></div>
+  </div>
+</div>
 
     <div class="modal-overlay hidden" id="meetingsOverlay" role="dialog" aria-modal="true">
       <div class="modal" aria-label="Meetings">
