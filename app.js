@@ -69,6 +69,11 @@ const videosOverlay = document.getElementById("videosOverlay");
 const closeVideos = document.getElementById("closeVideos");
 const videoButtons = document.getElementById("videoButtons");
 
+// NEW: resizable Videos modal hookup
+const videosResize = document.getElementById("videosResize");
+const videosModal = videosOverlay.querySelector(".modal");
+setupModalResize(videosModal, videosResize);
+
 const meetingsOverlay = document.getElementById("meetingsOverlay");
 const closeMeetings = document.getElementById("closeMeetings");
 const openMorningSlides = document.getElementById("openMorningSlides");
@@ -580,6 +585,46 @@ function setupResizeLockedAspect(frame, handle, aspect){
 
   handle.addEventListener("pointerup", () => { resizing = false; });
   handle.addEventListener("pointercancel", () => { resizing = false; });
+}
+
+function setupModalResize(modalEl, handleEl){
+  const PAD = 12;
+  const minW = 360;
+  const minH = 260;
+
+  let resizing = false;
+  let startX = 0, startY = 0;
+  let startW = 0, startH = 0;
+
+  function applySize(w, h){
+    const maxW = window.innerWidth - PAD*2;
+    const maxH = window.innerHeight - PAD*2;
+
+    modalEl.style.width = `${clamp(w, minW, maxW)}px`;
+    modalEl.style.height = `${clamp(h, minH, maxH)}px`;
+  }
+
+  handleEl.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const r = modalEl.getBoundingClientRect();
+    startW = r.width;
+    startH = r.height;
+
+    handleEl.setPointerCapture(e.pointerId);
+  });
+
+  handleEl.addEventListener("pointermove", (e) => {
+    if (!resizing) return;
+    applySize(startW + (e.clientX - startX), startH + (e.clientY - startY));
+  });
+
+  handleEl.addEventListener("pointerup", () => { resizing = false; });
+  handleEl.addEventListener("pointercancel", () => { resizing = false; });
 }
 
 /* ------------------ Meetings ------------------ */
