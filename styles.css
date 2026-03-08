@@ -412,3 +412,18 @@ body{
   .video-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
   .symbol-grid{ grid-template-columns: repeat(4, 80px); }
 }
+
+.modal{ position: relative; }
+
+.modal-resize{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  width:18px;
+  height:18px;
+  border:3px solid rgba(0,0,0,0.45);
+  border-radius:6px;
+  background: rgba(255,255,255,0.9);
+  cursor: nwse-resize;
+  z-index: 20;
+}
