@@ -244,6 +244,7 @@ body{
 }
 
 .modal{
+  position: relative;            /* <-- add this line */
   width:min(900px, 92vw);
   max-height:80vh;
   background:#fff;
@@ -253,6 +254,7 @@ body{
   display:flex;
   flex-direction:column;
 }
+
 .modal-header{
   background: var(--yellow);
   border-bottom:6px solid var(--border);
@@ -261,7 +263,9 @@ body{
   justify-content:space-between;
   padding:10px 12px;
 }
+
 .modal-title{ font-weight:900; font-size:1.2rem; }
+
 .xbtn{
   width:42px;
   height:42px;
@@ -271,7 +275,25 @@ body{
   font-weight:900;
   cursor:pointer;
 }
-.modal-body{ padding:12px; overflow:auto; }
+
+.modal-body{
+  padding:12px;
+  overflow:auto;
+}
+
+/* resize handle for modals (Videos, Meetings, etc.) */
+.modal-resize{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  width:18px;
+  height:18px;
+  border:3px solid rgba(0,0,0,0.45);
+  border-radius:6px;
+  background: rgba(255,255,255,0.9);
+  cursor: nwse-resize;
+  z-index: 20;
+}
 
 .video-grid{
   display:grid;
@@ -411,19 +433,4 @@ body{
   .current-icon{ width:200px; height:200px; }
   .video-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
   .symbol-grid{ grid-template-columns: repeat(4, 80px); }
-}
-
-.modal{ position: relative; }
-
-.modal-resize{
-  position:absolute;
-  right:8px;
-  bottom:8px;
-  width:18px;
-  height:18px;
-  border:3px solid rgba(0,0,0,0.45);
-  border-radius:6px;
-  background: rgba(255,255,255,0.9);
-  cursor: nwse-resize;
-  z-index: 20;
 }
