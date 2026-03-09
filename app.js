@@ -99,6 +99,9 @@ const floatLayer = document.getElementById("floatLayer");
 let state = loadState();
 let editMode = false;
 let editingId = null;
+let lastActiveId = null;
+
+const transitionSound = new Audio("./mixkit-game-level-completed-2059.wav");
 
 // Init
 render();
@@ -319,6 +322,7 @@ function tickSchedule(){
       setCurrentDisplay(null, null);
     }
 
+    lastActiveId = null;
     markCards({ activeId:null, completedBeforeMin: -1, ordered });
     return;
   }
@@ -326,6 +330,7 @@ function tickSchedule(){
   // After last
   if (nowMin >= endMin){
     setCurrentDisplay(null, null);
+    lastActiveId = null;
     markCards({ activeId:null, completedBeforeMin: endMin, ordered });
     return;
   }
@@ -347,6 +352,7 @@ function tickSchedule(){
 
   if (!active){
     setCurrentDisplay(null, null);
+    lastActiveId = null;
     markCards({ activeId:null, completedBeforeMin: -1, ordered });
     return;
   }
@@ -356,6 +362,12 @@ function tickSchedule(){
   const total = Math.max(1, nextStartMin - activeStart);
   const elapsed = Math.min(total, nowMin - activeStart);
   const progress = elapsed / total; // 0..1
+
+  if (active.id !== lastActiveId) {
+    lastActiveId = active.id;
+    transitionSound.currentTime = 0;
+    transitionSound.play().catch((err) => console.warn("Transition sound playback failed:", err));
+  }
 
   setCurrentDisplay(active, remaining);
   // Mask fills bottom->top as time progresses
