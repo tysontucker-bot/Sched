@@ -173,10 +173,17 @@ function render(){
 }
 
 function renderCard(a){
+  const hasSteps = Array.isArray(a.steps) && a.steps.length > 0;
+
   const card = document.createElement("div");
-  card.className = "card" + (editMode ? " editable edit-mode" : "");
+  card.className = "card" + (editMode ? " editable edit-mode" : "") + (hasSteps ? " has-steps" : "");
   card.dataset.id = a.id;
   card.draggable = !!editMode;
+  if (hasSteps && !editMode) {
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${a.name} — tap to view steps`);
+    card.setAttribute("tabindex", "0");
+  }
 
   const img = document.createElement("img");
   img.className = "card-icon";
@@ -228,9 +235,21 @@ function renderCard(a){
   card.appendChild(del);
 
   card.addEventListener("click", () => {
-    if (!editMode) return;
-    openEditFor(a.id);
+    if (editMode) {
+      openEditFor(a.id);
+    } else if (hasSteps) {
+      renderDetailsWindow(a);
+    }
   });
+
+  if (hasSteps && !editMode) {
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        renderDetailsWindow(a);
+      }
+    });
+  }
 
   // Drag reorder
   if (editMode){
