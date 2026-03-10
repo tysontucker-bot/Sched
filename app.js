@@ -16,7 +16,11 @@ const POS_KEY = "sched:currentBoxPos:v1";
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
   { id: uid(), name:"Writing", time:"8:00", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/writing.png.varianted-skin.png" },
-  { id: uid(), name:"Morning Meeting", time:"8:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
+  { id: uid(), name:"Morning Meeting", time:"8:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png", steps:[
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg", label:"Take attendance", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png", label:"Morning greeting", completed:false },
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
+  ] },
   { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg" },
   { id: uid(), name:"Attendance", time:"8:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
   { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
@@ -25,7 +29,12 @@ const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Math", time:"10:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png" },
   { id: uid(), name:"PE", time:"10:40", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/PE.svg.varianted-skin.svg" },
   { id: uid(), name:"Music", time:"11:00", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/noun-project/Music-24b69f41d0.svg" },
-  { id: uid(), name:"Lunch", time:"11:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg" },
+  { id: uid(), name:"Lunch", time:"11:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg", steps:[
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg", label:"Get lunch tray", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg", label:"Find a seat", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png", label:"Eat and enjoy", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg", label:"Clean up tray", completed:false },
+  ] },
   { id: uid(), name:"Swing", time:"12:00", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
   { id: uid(), name:"Rest", time:"12:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Desk Work", time:"13:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
@@ -94,12 +103,15 @@ const symbolError = document.getElementById("symbolError");
 const symbolResults = document.getElementById("symbolResults");
 
 const floatLayer = document.getElementById("floatLayer");
+const btnDetails = document.getElementById("btnDetails");
 
 // State
 let state = loadState();
 let editMode = false;
 let editingId = null;
 let lastActiveId = null;
+let currentActivity = null;
+let floatZCounter = 900;
 
 const transitionSound = new Audio("./mixkit-game-level-completed-2059.wav");
 
@@ -110,6 +122,14 @@ setupCurrentBoxDrag();
 setupVideos();
 setupMeetings();
 setupEditModal();
+
+// Details button: prevent drag start, open popup on click
+btnDetails.addEventListener("mousedown", (e) => e.stopPropagation());
+btnDetails.addEventListener("click", () => {
+  if (currentActivity && Array.isArray(currentActivity.steps) && currentActivity.steps.length) {
+    renderDetailsWindow(currentActivity);
+  }
+});
 
 btnSettings.addEventListener("click", () => {
   editMode = !editMode;
@@ -390,17 +410,25 @@ function markCards({ activeId, completedBeforeMin, ordered }){
 
 function setCurrentDisplay(activity, remainingMinutes){
   if (!activity){
+    currentActivity = null;
     currentIcon.src = "";
     currentIcon.style.visibility = "hidden";
     currentName.textContent = "-";
     currentRemaining.textContent = "-";
     currentMask.style.height = "0%";
+    btnDetails.classList.add("hidden");
+    currentBox.classList.remove("has-steps");
     return;
   }
+  currentActivity = activity;
   currentIcon.style.visibility = "visible";
   currentIcon.src = activity.icon;
   currentName.textContent = activity.name;
   currentRemaining.textContent = formatRemaining(remainingMinutes);
+
+  const hasSteps = Array.isArray(activity.steps) && activity.steps.length > 0;
+  btnDetails.classList.toggle("hidden", !hasSteps);
+  currentBox.classList.toggle("has-steps", hasSteps);
 }
 
 /* ------------------ Draggable current activity box ------------------ */
@@ -521,7 +549,7 @@ function dragWithinBoard(frame, handle){
     const r = frame.getBoundingClientRect();
     startL = r.left;
     startT = r.top;
-    frame.style.zIndex = String(900 + Math.floor(Math.random()*50));
+    frame.style.zIndex = String(++floatZCounter);
   });
 
   window.addEventListener("mousemove", (e) => {
@@ -538,6 +566,110 @@ function dragWithinBoard(frame, handle){
 
   window.addEventListener("mouseup", () => dragging = false);
 }
+
+/* ------------------ enableDrag helper ------------------ */
+
+function enableDrag(element, handle){
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let startL = 0, startT = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const r = element.getBoundingClientRect();
+    startL = r.left;
+    startT = r.top;
+    element.style.zIndex = String(++floatZCounter);
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    const pad = 8;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const maxLeft = window.innerWidth - element.offsetWidth - pad;
+    const maxTop = window.innerHeight - element.offsetHeight - pad;
+    element.style.left = `${clamp(startL + dx, pad, maxLeft)}px`;
+    element.style.top = `${clamp(startT + dy, pad, maxTop)}px`;
+  });
+
+  window.addEventListener("mouseup", () => { dragging = false; });
+}
+
+/* ------------------ Details popup ------------------ */
+
+function renderDetailsWindow(activity){
+  // Only one details popup at a time
+  const existing = floatLayer.querySelector(".details-popup");
+  if (existing) existing.remove();
+
+  const popup = document.createElement("div");
+  popup.className = "details-popup";
+
+  // Default position: center of viewport
+  const W = Math.min(400, window.innerWidth - 40);
+  popup.style.width = `${W}px`;
+  popup.style.left = `${Math.max(8, (window.innerWidth - W) / 2)}px`;
+  popup.style.top = `${Math.max(8, (window.innerHeight - 350) / 2)}px`;
+
+  // Header (drag handle)
+  const header = document.createElement("div");
+  header.className = "details-popup-header";
+
+  const title = document.createElement("div");
+  title.className = "details-popup-title";
+  title.textContent = activity.name;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "xbtn";
+  closeBtn.textContent = "✕";
+  closeBtn.addEventListener("click", () => popup.remove());
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+
+  // Body: checklist steps
+  const body = document.createElement("div");
+  body.className = "details-popup-body";
+
+  (activity.steps || []).forEach((step) => {
+    const row = document.createElement("div");
+    row.className = "details-step" + (step.completed ? " completed" : "");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "details-step-check";
+    checkbox.checked = !!step.completed;
+    checkbox.addEventListener("change", () => {
+      step.completed = checkbox.checked;
+      row.classList.toggle("completed", step.completed);
+      saveState();
+    });
+
+    const icon = document.createElement("img");
+    icon.className = "details-step-icon";
+    icon.src = step.icon || "";
+    icon.alt = "";
+
+    const label = document.createElement("div");
+    label.className = "details-step-label";
+    label.textContent = step.label;
+
+    row.appendChild(checkbox);
+    row.appendChild(icon);
+    row.appendChild(label);
+    body.appendChild(row);
+  });
+
+  popup.appendChild(header);
+  popup.appendChild(body);
+  floatLayer.appendChild(popup);
+
+  enableDrag(popup, header);
+}
+
 function setupResizeLockedAspect(frame, handle, aspect){
   // aspect = width/height of the VIDEO area (not counting header)
   // current CSS: header is 44px tall
