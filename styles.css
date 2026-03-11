@@ -113,6 +113,19 @@ body{
 .card.dragging{ opacity:.6; }
 .card.editable{ cursor:move; }
 
+/* Cards with step checklists are clickable in normal mode */
+.card.has-steps:not(.edit-mode){
+  cursor: pointer;
+}
+.card.has-steps:not(.edit-mode)::before{
+  content: "📋";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
 .card.active{
   background: var(--yellow);
   transform: scale(1.05);
