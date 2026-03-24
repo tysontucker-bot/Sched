@@ -30,7 +30,11 @@ const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
   { id: uid(), name:"Break", time:"9:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Snack", time:"9:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png" },
-  { id: uid(), name:"Math", time:"10:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png" },
+  { id: uid(), name:"Math", time:"10:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png", steps:[
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png", label:"Vocabulary", url:"./Extension%20PowerPoint.pptx.mp4", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png", label:"Worksheet", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg", label:"Folder", completed:false },
+  ] },
   { id: uid(), name:"PE", time:"10:40", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/PE.svg.varianted-skin.svg" },
   { id: uid(), name:"Music", time:"11:00", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/noun-project/Music-24b69f41d0.svg" },
   { id: uid(), name:"Lunch", time:"11:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/lunch 2.svg", steps:[
