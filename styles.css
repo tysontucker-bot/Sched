@@ -513,6 +513,18 @@ body{
   text-decoration:line-through;
 }
 
+.details-step-link{
+  cursor:pointer;
+}
+.details-step-link:hover{
+  background:#e3f2fd;
+  border-color:#1565c0;
+}
+.details-step-link .details-step-label{
+  color:#1565c0;
+  text-decoration:underline;
+}
+
 .details-step-check{
   width:22px;
   height:22px;
