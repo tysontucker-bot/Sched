@@ -22,7 +22,7 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
   { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
-    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Vocabulary", url:"https://www.canva.com/design/DAHE0Gtcur8/3mFfDOJ9SfdXhA0IME8uGQ/view?utm_content=DAHE0Gtcur8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hf5ebbca246", completed:false },
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Vocabulary", url:"./Vehicles.mp4", completed:false },
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png", label:"Worksheet", completed:false },
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg", label:"Folder", completed:false },
   ] },
