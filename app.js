@@ -567,6 +567,52 @@ function openVideoFloat(title, youtubeId){
 }
 
 
+function openLocalVideoFloat(title, url){
+  const frame = document.createElement("div");
+  frame.className = "float";
+  frame.style.left = "40px";
+  frame.style.top = "120px";
+
+  const header = document.createElement("div");
+  header.className = "float-header";
+
+  const t = document.createElement("div");
+  t.className = "float-title";
+  t.textContent = title;
+
+  const close = document.createElement("button");
+  close.className = "float-close";
+  close.textContent = "✕";
+  close.addEventListener("click", () => frame.remove());
+
+  header.appendChild(t);
+  header.appendChild(close);
+
+  const body = document.createElement("div");
+  body.className = "float-body";
+
+  const video = document.createElement("video");
+  video.src = url;
+  video.controls = true;
+  video.autoplay = true;
+  body.appendChild(video);
+
+  frame.appendChild(header);
+  frame.appendChild(body);
+  floatLayer.appendChild(frame);
+
+  // resize handle (bottom-right)
+  const resize = document.createElement("div");
+  resize.className = "float-resize";
+  frame.appendChild(resize);
+
+  setupResizeLockedAspect(frame, resize, 16/9);
+
+  // drag
+  dragWithinBoard(frame, header);
+}
+
+
 function dragWithinBoard(frame, handle){
   let dragging = false;
   let startX = 0, startY = 0;
@@ -691,7 +737,7 @@ function renderDetailsWindow(activity){
       row.classList.add("details-step-link");
       row.addEventListener("click", (e) => {
         if (e.target === checkbox) return;
-        window.open(step.url, "_blank", "noopener,noreferrer");
+        openLocalVideoFloat(step.label, step.url);
       });
     }
 
