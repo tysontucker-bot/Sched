@@ -11,6 +11,7 @@
 
 const STORAGE_KEY = "sched:v1";
 const MIGRATION_KEY = "sched:migratedTo24h:v1";
+const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 
 const DEFAULT_ACTIVITIES = [
@@ -1040,6 +1041,25 @@ function loadState(){
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY, "1");
+    }
+    if (!localStorage.getItem(MIGRATION_KEY_2)){
+      // Replace the old Canva URL in the English Vocabulary step with the local mp4
+      saved.activities.forEach(a => {
+        if (a.name === "English" && Array.isArray(a.steps)){
+          a.steps.forEach(step => {
+            if (step.label === "Vocabulary" && typeof step.url === "string"){
+              try {
+                const host = new URL(step.url).hostname;
+                if (host === "www.canva.com" || host === "canva.com"){
+                  step.url = "./Vehicles.mp4";
+                }
+              } catch { /* not a valid absolute URL, leave as-is */ }
+            }
+          });
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY_2, "1");
     }
     return saved;
   }
