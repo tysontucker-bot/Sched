@@ -21,7 +21,11 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png", label:"Morning greeting", completed:false },
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
-  { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg" },
+  { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Vocabulary", url:"https://www.canva.com/design/DAHE0Gtcur8/3mFfDOJ9SfdXhA0IME8uGQ/view?utm_content=DAHE0Gtcur8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hf5ebbca246", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png", label:"Worksheet", completed:false },
+    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg", label:"Folder", completed:false },
+  ] },
   { id: uid(), name:"Attendance", time:"8:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
   { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
   { id: uid(), name:"Break", time:"9:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
@@ -406,6 +410,9 @@ function tickSchedule(){
     lastActiveId = active.id;
     transitionSound.currentTime = 0;
     transitionSound.play().catch((err) => console.warn("Transition sound playback failed:", err));
+    if (Array.isArray(active.steps) && active.steps.length) {
+      renderDetailsWindow(active);
+    }
   }
 
   setCurrentDisplay(active, remaining);
@@ -675,6 +682,14 @@ function renderDetailsWindow(activity){
     const label = document.createElement("div");
     label.className = "details-step-label";
     label.textContent = step.label;
+
+    if (step.url) {
+      row.classList.add("details-step-link");
+      row.addEventListener("click", (e) => {
+        if (e.target === checkbox) return;
+        window.open(step.url, "_blank", "noopener,noreferrer");
+      });
+    }
 
     row.appendChild(checkbox);
     row.appendChild(icon);
