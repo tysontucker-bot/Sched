@@ -59,6 +59,7 @@ const VIDEOS = [
   { title:"Lunch", id:"JegZYWlaq8w" },
   { title:"Break", id:"o_YV7lSEbO0" },
   { title:"Afternoon", id:"eji41cH7R54" },
+  { title:"Animals", id:"ecVQvgnKDug" },
 ];
 
 const MEETING_URLS = {
