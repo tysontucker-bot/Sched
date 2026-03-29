@@ -896,6 +896,106 @@ function afternoonMeetingUrl(){
   return MEETING_URLS.afternoonMW;
 }
 
+/* ------------------ Symbol search: local catalog + ARASAAC API ------------------ */
+
+/**
+ * Built-in local symbol catalog.
+ * Each entry has an array of keywords and an emoji used as the symbol.
+ * This catalog works offline and requires no external API calls.
+ */
+const LOCAL_SYMBOL_CATALOG = [
+  { keywords: ["math", "mathematics", "numbers", "count", "addition", "subtraction"], emoji: "🔢", label: "Math" },
+  { keywords: ["reading", "book", "books", "library", "read"], emoji: "📚", label: "Reading" },
+  { keywords: ["writing", "write", "pencil", "pen", "journal"], emoji: "✏️", label: "Writing" },
+  { keywords: ["science", "experiment", "lab", "nature"], emoji: "🔬", label: "Science" },
+  { keywords: ["art", "draw", "paint", "drawing", "painting", "craft"], emoji: "🎨", label: "Art" },
+  { keywords: ["music", "sing", "song", "instrument", "band", "choir"], emoji: "🎵", label: "Music" },
+  { keywords: ["gym", "pe", "physical", "exercise", "sport", "sports"], emoji: "🏃", label: "PE/Gym" },
+  { keywords: ["recess", "play", "playground", "outside", "outdoor"], emoji: "⛹️", label: "Recess" },
+  { keywords: ["lunch", "eat", "food", "meal", "cafeteria"], emoji: "🍽️", label: "Lunch" },
+  { keywords: ["snack", "snacktime", "fruit", "apple"], emoji: "🍎", label: "Snack" },
+  { keywords: ["computer", "technology", "tech", "coding", "code", "ipad", "tablet"], emoji: "💻", label: "Computer" },
+  { keywords: ["speech", "talk", "language", "speech therapy", "communication"], emoji: "💬", label: "Speech" },
+  { keywords: ["rest", "quiet", "calm", "relax", "break"], emoji: "😌", label: "Rest/Break" },
+  { keywords: ["clean", "cleanup", "tidy", "organize"], emoji: "🧹", label: "Clean Up" },
+  { keywords: ["calendar", "schedule", "morning meeting", "circle"], emoji: "📅", label: "Calendar" },
+  { keywords: ["bathroom", "restroom", "toilet", "break"], emoji: "🚽", label: "Bathroom" },
+  { keywords: ["home", "house", "dismiss", "dismissal", "goodbye"], emoji: "🏠", label: "Home/Dismissal" },
+  { keywords: ["morning", "wake", "start", "begin", "arrival"], emoji: "🌅", label: "Morning" },
+  { keywords: ["afternoon", "end", "finish", "done"], emoji: "🌆", label: "Afternoon" },
+  { keywords: ["circle time", "story", "stories", "storytime", "carpet"], emoji: "⭕", label: "Circle Time" },
+  { keywords: ["work", "work time", "independent", "solo", "practice"], emoji: "📝", label: "Work Time" },
+  { keywords: ["transition", "move", "walk", "line", "hallway"], emoji: "🚶", label: "Transition" },
+  { keywords: ["therapy", "occupational", "ot", "pt"], emoji: "🩺", label: "Therapy" },
+  { keywords: ["reward", "star", "award", "prize", "token"], emoji: "⭐", label: "Reward" },
+  { keywords: ["bus", "transport", "school bus"], emoji: "🚌", label: "Bus" },
+  { keywords: ["bell", "alarm", "timer"], emoji: "🔔", label: "Bell/Timer" },
+  { keywords: ["health", "nurse", "sick", "medicine"], emoji: "🏥", label: "Health" },
+  { keywords: ["test", "quiz", "exam", "assessment"], emoji: "📋", label: "Test/Quiz" },
+  { keywords: ["history", "social studies", "geography", "map"], emoji: "🗺️", label: "Social Studies" },
+  { keywords: ["english", "literacy", "grammar", "spelling", "phonics"], emoji: "📖", label: "English/Literacy" },
+  { keywords: ["special", "specials", "elective", "activity"], emoji: "🌟", label: "Specials" },
+  { keywords: ["water", "drink", "fountain", "hydrate"], emoji: "💧", label: "Water Break" },
+  { keywords: ["teacher", "instructor", "class", "classroom", "lesson"], emoji: "👩‍🏫", label: "Class/Lesson" },
+  { keywords: ["puzzle", "game", "games", "fun", "play"], emoji: "🎮", label: "Games" },
+  { keywords: ["movie", "video", "watch", "screen", "film"], emoji: "📺", label: "Video" },
+  { keywords: ["free choice", "choice", "choices", "free", "explore"], emoji: "🎯", label: "Free Choice" },
+  { keywords: ["group", "team", "partner", "social", "friends"], emoji: "👥", label: "Group Work" },
+  { keywords: ["library", "librarian", "checkout"], emoji: "🏛️", label: "Library" },
+  { keywords: ["cooking", "bake", "food prep", "home ec"], emoji: "🍳", label: "Cooking" },
+  { keywords: ["flag", "pledge", "national anthem"], emoji: "🚩", label: "Pledge" },
+];
+
+/**
+ * Convert an emoji character to a data URL using an inline SVG.
+ * This produces an image-compatible URL with no external requests.
+ * NOTE: emoji values come exclusively from LOCAL_SYMBOL_CATALOG (hardcoded above),
+ * never from user input, so no sanitization is needed at runtime.
+ */
+function emojiToDataUrl(emoji) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="52" font-size="52">${emoji}</text></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Search the local built-in catalog by matching query terms against keywords and labels.
+ * Returns immediately with no network requests.
+ */
+function searchLocalSymbols(q) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const results = [];
+  for (const entry of LOCAL_SYMBOL_CATALOG) {
+    const matched = terms.some(t =>
+      entry.keywords.some(k => k.includes(t) || t.includes(k)) ||
+      entry.label.toLowerCase().includes(t)
+    );
+    if (matched) {
+      results.push({ url: emojiToDataUrl(entry.emoji), label: entry.label });
+    }
+  }
+  return results;
+}
+
+/**
+ * Search ARASAAC for AAC pictograms.
+ * ARASAAC (https://arasaac.org) is a free, open, CORS-enabled pictogram API
+ * used widely in educational and AAC apps. No API key required.
+ */
+async function searchArasaac(q) {
+  const url = `https://api.arasaac.org/v1/pictograms/en/search/${encodeURIComponent(q)}`;
+  const res = await fetch(url, { mode: "cors" });
+  if (!res.ok) return [];
+  const data = await res.json();
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter(x => x._id != null)   // guard against missing _id (would produce invalid URLs)
+    .slice(0, 40)
+    .map(x => ({
+      url: `https://static.arasaac.org/pictograms/${x._id}/${x._id}_300.png`,
+      label: x.keywords?.[0]?.keyword || q,
+    }));
+}
+
 /* ------------------ Edit modal (rename/symbol search) ------------------ */
 
 function setupEditModal(){
@@ -949,19 +1049,22 @@ async function runSymbolSearch(q){
   symbolResults.innerHTML = "";
 
   try{
-    const [openSymbols, globalSymbols] = await Promise.allSettled([
-      searchOpenSymbols(q),
-      searchGlobalSymbols(q),
-    ]);
+    // 1. Show local built-in symbols immediately (instant, works offline)
+    const local = searchLocalSymbols(q);
 
-    const candidates = []
-      .concat(openSymbols.status === "fulfilled" ? openSymbols.value : [])
-      .concat(globalSymbols.status === "fulfilled" ? globalSymbols.value : []);
+    // 2. Try ARASAAC pictogram API (free, no auth, CORS-enabled)
+    let remote = [];
+    try {
+      remote = await searchArasaac(q);
+    } catch (e){
+      // Network unavailable; local results will still show
+    }
 
-    const unique = dedupeByUrl(candidates);
+    // Combine: local first (instant feedback), then ARASAAC pictograms
+    const unique = dedupeByUrl([...local, ...remote]);
 
     if (unique.length === 0){
-      symbolError.textContent = "No symbols found (or blocked by CORS).";
+      symbolError.textContent = "No symbols found. Try a different keyword.";
       symbolError.classList.remove("hidden");
       return;
     }
@@ -986,33 +1089,11 @@ async function runSymbolSearch(q){
     });
 
   } catch (e){
-    symbolError.textContent = "Error searching symbols (possibly blocked by CORS).";
+    symbolError.textContent = "Error loading symbols.";
     symbolError.classList.remove("hidden");
   } finally{
     symbolSpinner.classList.add("hidden");
   }
-}
-
-// Best-effort API calls (may be blocked by CORS or require auth)
-async function searchOpenSymbols(q){
-  const url = `https://www.opensymbols.org/api/v2/symbols/search?q=${encodeURIComponent(q)}`;
-  const res = await fetch(url, { mode: "cors" });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (Array.isArray(data) ? data : [])
-    .map(x => ({ url: x.image_url || x.image || x.url || "", label: x.name || x.label || "OpenSymbols" }))
-    .filter(x => !!x.url);
-}
-
-async function searchGlobalSymbols(q){
-  const url = `https://globalsymbols.com/api/v1/symbols/search?query=${encodeURIComponent(q)}`;
-  const res = await fetch(url, { mode: "cors" });
-  if (!res.ok) return [];
-  const data = await res.json();
-  const items = data?.results || data?.symbols || data || [];
-  return (Array.isArray(items) ? items : [])
-    .map(x => ({ url: x.image_url || x.png || x.url || x.image || "", label: x.name || x.label || "GlobalSymbols" }))
-    .filter(x => !!x.url);
 }
 
 function dedupeByUrl(items){
