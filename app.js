@@ -690,7 +690,7 @@ function renderDetailsWindow(activity){
   popup.className = "details-popup";
 
   // Default position: center of viewport
-  const W = Math.min(400, window.innerWidth - 40);
+  const W = Math.min(340, window.innerWidth - 40);
   popup.style.width = `${W}px`;
   popup.style.left = `${Math.max(8, (window.innerWidth - W) / 2)}px`;
   popup.style.top = `${Math.max(8, (window.innerHeight - 350) / 2)}px`;
@@ -753,11 +753,17 @@ function renderDetailsWindow(activity){
     body.appendChild(row);
   });
 
+  // Resize handle (bottom-right, like video floats)
+  const resizeHandle = document.createElement("div");
+  resizeHandle.className = "float-resize";
+
   popup.appendChild(header);
   popup.appendChild(body);
+  popup.appendChild(resizeHandle);
   floatLayer.appendChild(popup);
 
   enableDrag(popup, header);
+  setupDetailsPopupResize(popup);
 }
 
 function setupResizeLockedAspect(frame, handle, aspect){
@@ -816,6 +822,70 @@ function setupResizeLockedAspect(frame, handle, aspect){
     if (!resizing) return;
     const dx = e.clientX - startX;
     applyWidth(startW + dx);
+  });
+
+  handle.addEventListener("pointerup", () => { resizing = false; });
+  handle.addEventListener("pointercancel", () => { resizing = false; });
+}
+
+function setupDetailsPopupResize(popup){
+  // Base width used to compute the scale factor (matches initial popup width)
+  const BASE_W = 340;
+  const MIN_W = 260;
+  const MIN_H = 150;
+  const PAD = 8;
+
+  const handle = popup.querySelector(".float-resize");
+  if (!handle) return;
+
+  let resizing = false;
+  let startX = 0, startY = 0;
+  let startW = 0, startH = 0;
+
+  function applySize(w, h){
+    const maxW = window.innerWidth - PAD * 2;
+    const maxH = window.innerHeight - PAD * 2;
+    w = clamp(w, MIN_W, maxW);
+    h = clamp(h, MIN_H, maxH);
+
+    popup.style.width = `${w}px`;
+    popup.style.height = `${h}px`;
+
+    // Scale content proportionally: icons, fonts, spacing all grow with width
+    const scale = w / BASE_W;
+    popup.style.setProperty("--ds-scale", scale);
+
+    // Body fills remaining height below the header
+    const headerEl = popup.querySelector(".details-popup-header");
+    const headerH = headerEl ? headerEl.offsetHeight : Math.round(48 * scale);
+    const body = popup.querySelector(".details-popup-body");
+    if (body) body.style.maxHeight = `${h - headerH}px`;
+
+    // Keep popup on-screen after resize
+    const r = popup.getBoundingClientRect();
+    if (r.right > window.innerWidth - PAD){
+      popup.style.left = `${window.innerWidth - w - PAD}px`;
+    }
+    if (r.bottom > window.innerHeight - PAD){
+      popup.style.top = `${window.innerHeight - h - PAD}px`;
+    }
+  }
+
+  handle.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const r = popup.getBoundingClientRect();
+    startW = r.width;
+    startH = r.height;
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!resizing) return;
+    applySize(startW + (e.clientX - startX), startH + (e.clientY - startY));
   });
 
   handle.addEventListener("pointerup", () => { resizing = false; });
