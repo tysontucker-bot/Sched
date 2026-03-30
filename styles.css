@@ -241,8 +241,7 @@ body{
   height:140px;
   object-fit:contain;
   border-radius:50%;
-  background: rgba(255,255,255,0.9);
-  padding:6px;
+  mix-blend-mode: multiply;
 }
 .current-name{ font-weight:900; font-size:1.4rem; line-height:1.1; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
 .current-remaining{ font-weight:900; font-size:1rem; color:#333; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
