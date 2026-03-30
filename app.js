@@ -896,6 +896,86 @@ function afternoonMeetingUrl(){
   return MEETING_URLS.afternoonMW;
 }
 
+/* ------------------ Symbol search: local catalog of image symbols ------------------ */
+
+/**
+ * Built-in local symbol catalog.
+ * Each entry has a label, keywords to match against, and a URL pointing to a
+ * Twemoji PNG image (72×72) served from the jsDelivr CDN.
+ * Twemoji images are open-source (CC-BY 4.0), CORS-enabled, and require no API key.
+ * The catalog works without any backend and is safe for static GitHub Pages deployments.
+ *
+ * Twemoji image base: https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/
+ * Filename = Unicode codepoint(s) in lowercase hex, joined by hyphens for ZWJ sequences.
+ */
+const T = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/"; // base URL shorthand
+
+const LOCAL_SYMBOL_CATALOG = [
+  { label: "Math",            keywords: ["math","mathematics","numbers","count","addition","subtraction"], url: T+"1f522.png" },
+  { label: "Reading",         keywords: ["reading","book","books","read"],                                  url: T+"1f4da.png" },
+  { label: "Writing",         keywords: ["writing","write","journal","notes"],                              url: T+"1f4d3.png" },
+  { label: "Science",         keywords: ["science","experiment","lab","nature","biology"],                  url: T+"1f52c.png" },
+  { label: "Art",             keywords: ["art","draw","paint","drawing","painting","craft"],                url: T+"1f3a8.png" },
+  { label: "Music",           keywords: ["music","sing","song","instrument","band","choir"],                url: T+"1f3b5.png" },
+  { label: "PE / Gym",        keywords: ["gym","pe","physical","exercise","sport","sports","fitness"],      url: T+"1f3c3.png" },
+  { label: "Recess",          keywords: ["recess","play","playground","outside","outdoor"],                 url: T+"26bd.png"  },
+  { label: "Lunch",           keywords: ["lunch","eat","food","meal","cafeteria"],                          url: T+"1f96a.png" },
+  { label: "Snack",           keywords: ["snack","snacktime","fruit","apple"],                              url: T+"1f34e.png" },
+  { label: "Computer",        keywords: ["computer","technology","tech","coding","code","ipad","tablet"],   url: T+"1f4bb.png" },
+  { label: "Speech",          keywords: ["speech","talk","language","communication","therapy"],             url: T+"1f4ac.png" },
+  { label: "Rest / Break",    keywords: ["rest","quiet","calm","relax","break","nap"],                      url: T+"1f60c.png" },
+  { label: "Clean Up",        keywords: ["clean","cleanup","tidy","organize","sweep"],                      url: T+"1f9f9.png" },
+  { label: "Calendar",        keywords: ["calendar","schedule","morning meeting","circle","date"],          url: T+"1f4c5.png" },
+  { label: "Bathroom",        keywords: ["bathroom","restroom","toilet","lavatory"],                        url: T+"1f6bd.png" },
+  { label: "Home / Dismissal",keywords: ["home","house","dismiss","dismissal","goodbye","depart"],         url: T+"1f3e0.png" },
+  { label: "Morning",         keywords: ["morning","wake","start","begin","arrival","sunrise"],             url: T+"1f305.png" },
+  { label: "Afternoon",       keywords: ["afternoon","end","finish","done","sunset"],                      url: T+"1f306.png" },
+  { label: "Circle Time",     keywords: ["circle time","story","stories","storytime","carpet","meeting"],  url: T+"2b55.png"  },
+  { label: "Work Time",       keywords: ["work","work time","independent","solo","practice","desk"],        url: T+"1f4dd.png" },
+  { label: "Transition",      keywords: ["transition","move","walk","line","hallway","change"],             url: T+"1f6b6.png" },
+  { label: "Therapy",         keywords: ["therapy","occupational","ot","pt","support"],                    url: T+"1fa7a.png" },
+  { label: "Reward",          keywords: ["reward","star","award","prize","token","earn"],                   url: T+"2b50.png"  },
+  { label: "Bus",             keywords: ["bus","transport","school bus","ride"],                            url: T+"1f68c.png" },
+  { label: "Bell / Timer",    keywords: ["bell","alarm","timer","signal"],                                  url: T+"1f514.png" },
+  { label: "Health",          keywords: ["health","nurse","sick","medicine","doctor"],                      url: T+"1f3e5.png" },
+  { label: "Test / Quiz",     keywords: ["test","quiz","exam","assessment","check"],                        url: T+"1f4cb.png" },
+  { label: "Social Studies",  keywords: ["history","social studies","geography","map","globe","world"],    url: T+"1f30d.png" },
+  { label: "English",         keywords: ["english","literacy","grammar","spelling","phonics","reading"],   url: T+"1f4d6.png" },
+  { label: "Specials",        keywords: ["special","specials","elective","activity"],                       url: T+"1f31f.png" },
+  { label: "Water Break",     keywords: ["water","drink","fountain","hydrate","thirsty"],                   url: T+"1f4a7.png" },
+  { label: "Class / Lesson",  keywords: ["teacher","instructor","class","classroom","lesson","school"],    url: T+"1f469-200d-1f3eb.png" },
+  { label: "Games",           keywords: ["puzzle","game","games","fun","play","board"],                    url: T+"1f3ae.png" },
+  { label: "Video",           keywords: ["movie","video","watch","screen","film","tv"],                     url: T+"1f4fa.png" },
+  { label: "Free Choice",     keywords: ["free choice","choice","choices","free","explore","pick"],        url: T+"1f3af.png" },
+  { label: "Group Work",      keywords: ["group","team","partner","social","friends","collaborate"],        url: T+"1f465.png" },
+  { label: "Library",         keywords: ["library","librarian","checkout","books"],                         url: T+"1f4d4.png" },
+  { label: "Cooking",         keywords: ["cooking","bake","food prep","home ec","kitchen"],                 url: T+"1f373.png" },
+  { label: "Pledge",          keywords: ["flag","pledge","national anthem","patriot"],                      url: T+"1f6a9.png" },
+];
+
+// Pre-compute lowercase labels once at startup to avoid repeated conversions on each search.
+LOCAL_SYMBOL_CATALOG.forEach(e => { e._lower = e.label.toLowerCase(); });
+
+/**
+ * Search the local catalog for symbols matching the query.
+ * Matches any term in the query against entry keywords and labels.
+ * Returns results immediately — no network requests.
+ */
+function searchLocalSymbols(q) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const results = [];
+  for (const entry of LOCAL_SYMBOL_CATALOG) {
+    const matched = terms.some(t =>
+      entry._lower.includes(t) ||
+      entry.keywords.some(k => k.includes(t) || t.includes(k))
+    );
+    if (matched) {
+      results.push({ url: entry.url, label: entry.label });
+    }
+  }
+  return results;
+}
+
 /* ------------------ Edit modal (rename/symbol search) ------------------ */
 
 function setupEditModal(){
@@ -937,7 +1017,7 @@ function openEditFor(id){
   openOverlay(editOverlay);
 }
 
-async function runSymbolSearch(q){
+function runSymbolSearch(q){
   q = (q || "").trim();
   if (!q){
     symbolError.textContent = "Type something to search.";
@@ -945,86 +1025,35 @@ async function runSymbolSearch(q){
     return;
   }
   symbolError.classList.add("hidden");
-  symbolSpinner.classList.remove("hidden");
   symbolResults.innerHTML = "";
 
-  try{
-    const [openSymbols, globalSymbols] = await Promise.allSettled([
-      searchOpenSymbols(q),
-      searchGlobalSymbols(q),
-    ]);
+  // Search the local catalog — instant, no network required
+  const results = searchLocalSymbols(q);
 
-    const candidates = []
-      .concat(openSymbols.status === "fulfilled" ? openSymbols.value : [])
-      .concat(globalSymbols.status === "fulfilled" ? globalSymbols.value : []);
+  if (results.length === 0){
+    symbolError.textContent = "No symbols found. Try a different keyword.";
+    symbolError.classList.remove("hidden");
+    return;
+  }
 
-    const unique = dedupeByUrl(candidates);
+  results.forEach(item => {
+    const tile = document.createElement("div");
+    tile.className = "symbol";
+    const img = document.createElement("img");
+    img.src = item.url;
+    img.alt = item.label || "";
+    tile.appendChild(img);
 
-    if (unique.length === 0){
-      symbolError.textContent = "No symbols found (or blocked by CORS).";
-      symbolError.classList.remove("hidden");
-      return;
-    }
-
-    unique.slice(0, 64).forEach(item => {
-      const tile = document.createElement("div");
-      tile.className = "symbol";
-      const img = document.createElement("img");
-      img.src = item.url;
-      img.alt = item.label || "";
-      tile.appendChild(img);
-
-      tile.addEventListener("click", () => {
-        const a = state.activities.find(x => x.id === editingId);
-        if (!a) return;
-        a.icon = item.url;
-        saveState();
-        render();
-      });
-
-      symbolResults.appendChild(tile);
+    tile.addEventListener("click", () => {
+      const a = state.activities.find(x => x.id === editingId);
+      if (!a) return;
+      a.icon = item.url;
+      saveState();
+      render();
     });
 
-  } catch (e){
-    symbolError.textContent = "Error searching symbols (possibly blocked by CORS).";
-    symbolError.classList.remove("hidden");
-  } finally{
-    symbolSpinner.classList.add("hidden");
-  }
-}
-
-// Best-effort API calls (may be blocked by CORS or require auth)
-async function searchOpenSymbols(q){
-  const url = `https://www.opensymbols.org/api/v2/symbols/search?q=${encodeURIComponent(q)}`;
-  const res = await fetch(url, { mode: "cors" });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (Array.isArray(data) ? data : [])
-    .map(x => ({ url: x.image_url || x.image || x.url || "", label: x.name || x.label || "OpenSymbols" }))
-    .filter(x => !!x.url);
-}
-
-async function searchGlobalSymbols(q){
-  const url = `https://globalsymbols.com/api/v1/symbols/search?query=${encodeURIComponent(q)}`;
-  const res = await fetch(url, { mode: "cors" });
-  if (!res.ok) return [];
-  const data = await res.json();
-  const items = data?.results || data?.symbols || data || [];
-  return (Array.isArray(items) ? items : [])
-    .map(x => ({ url: x.image_url || x.png || x.url || x.image || "", label: x.name || x.label || "GlobalSymbols" }))
-    .filter(x => !!x.url);
-}
-
-function dedupeByUrl(items){
-  const seen = new Set();
-  const out = [];
-  for (const it of items){
-    const key = String(it.url || "").trim();
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    out.push(it);
-  }
-  return out;
+    symbolResults.appendChild(tile);
+  });
 }
 
 /* ------------------ Persistence ------------------ */
