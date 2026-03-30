@@ -111,6 +111,8 @@ const btnSearchSymbols = document.getElementById("btnSearchSymbols");
 const symbolSpinner = document.getElementById("symbolSpinner");
 const symbolError = document.getElementById("symbolError");
 const symbolResults = document.getElementById("symbolResults");
+const stepsEditor = document.getElementById("stepsEditor");
+const btnAddStep = document.getElementById("btnAddStep");
 
 const floatLayer = document.getElementById("floatLayer");
 const btnDetails = document.getElementById("btnDetails");
@@ -119,6 +121,7 @@ const btnDetails = document.getElementById("btnDetails");
 let state = loadState();
 let editMode = false;
 let editingId = null;
+let editingStepIndex = null;
 let lastActiveId = null;
 let currentActivity = null;
 let floatZCounter = 900;
@@ -730,6 +733,7 @@ function renderDetailsWindow(activity){
     icon.className = "details-step-icon";
     icon.src = step.icon || "";
     icon.alt = "";
+    icon.onerror = () => { icon.style.display = "none"; };
 
     const label = document.createElement("div");
     label.className = "details-step-label";
@@ -1110,7 +1114,86 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Turn In",              url: MUL+"turn in.svg",                                              tags: ["turn in","hand in","submit","give to teacher","finish"] },
   { label: "Hand In",              url: MUL+"handing in.svg",                                           tags: ["turn in","hand in","submit","give","teacher","work"] },
   { label: "Submit Work",          url: ARA+"turn in.png",                                              tags: ["turn in","submit","hand in","work","teacher","give"] },
+
+  /* ── Additional Activities ── */
+
+  // hands-on activity
+  { label: "Hands-On Activity",    url: MUL+"hands on activity.svg",                                    tags: ["hands-on","hands on","activity","manipulative","project","do","make"] },
+  { label: "Building",             url: MUL+"building.svg",                                             tags: ["hands-on","building","construct","blocks","make","create"] },
+  { label: "Making",               url: MUL+"making.svg",                                               tags: ["hands-on","making","make","build","create","craft"] },
+  { label: "Craft",                url: MUL+"craft.svg",                                                tags: ["hands-on","craft","make","create","activity","project"] },
+
+  // snack
+  { label: "Snack",                url: GS+"21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png",  tags: ["snack","eat","food","break","snack time"] },
+  { label: "Snack Time",           url: MUL+"snack.svg",                                                tags: ["snack","snack time","eat","food","break"] },
+  { label: "Eating Snack",         url: MUL+"eating a snack.svg",                                       tags: ["snack","eating","snack time","food","break"] },
+
+  // attendance / morning
+  { label: "Attendance",           url: GS+"3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg",   tags: ["attendance","register","morning","greeting","check in"] },
+  { label: "Morning Meeting",      url: GS+"21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png",  tags: ["morning meeting","meeting","greeting","circle","morning"] },
+  { label: "Circle Time",          url: MUL+"circle time.svg",                                          tags: ["circle time","morning","meeting","group","gathering","calendar"] },
+  { label: "Calendar",             url: MUL+"calendar.svg",                                             tags: ["calendar","date","morning","schedule","month","day"] },
+
+  // rest / break
+  { label: "Rest",                 url: GS+"3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg",   tags: ["rest","relax","quiet","break","sleep","down time"] },
+  { label: "Rest Time",            url: MUL+"resting.svg",                                              tags: ["rest","resting","relax","quiet","break","calm","rest time"] },
+  { label: "Nap Time",             url: MUL+"nap time.svg",                                             tags: ["rest","nap","sleep","quiet","relax","break"] },
+
+  // swing / sensory equipment
+  { label: "Swing",                url: GS+"46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png",  tags: ["swing","sensory","movement","vestibular","playground","play"] },
+  { label: "Sensory Equipment",    url: MUL+"sensory.svg",                                              tags: ["sensory","equipment","swing","vestibular","tactile","regulation"] },
+  { label: "Movement Break",       url: MUL+"movement break.svg",                                       tags: ["movement break","sensory","movement","active","exercise","break"] },
+
+  // television / screen time
+  { label: "Television",           url: GS+"6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg",   tags: ["television","tv","video","screen","movie","show","watch"] },
+  { label: "Watch Video",          url: MUL+"watching tv.svg",                                          tags: ["television","video","tv","watch","screen","movie"] },
+  { label: "Screen Time",          url: MUL+"screen time.svg",                                          tags: ["screen time","tv","tablet","computer","video","watch"] },
+
+  // jobs / classroom tasks
+  { label: "Job",                  url: MUL+"job.svg",                                                  tags: ["job","classroom job","task","responsibility","chore","role"] },
+  { label: "Classroom Job",        url: MUL+"classroom job.svg",                                        tags: ["job","classroom","task","responsibility","helper","chore"] },
+  { label: "Helper",               url: MUL+"helper.svg",                                               tags: ["helper","job","help","assist","classroom","responsible"] },
+
+  // choice / first-then
+  { label: "Choice",               url: MUL+"choice.svg",                                               tags: ["choice","choose","pick","decide","option","select"] },
+  { label: "First Then",           url: MUL+"first then.svg",                                           tags: ["first then","first","then","schedule","sequence","board"] },
+  { label: "First",                url: MUL+"first.svg",                                                tags: ["first","then","sequence","schedule","first then","before"] },
+  { label: "Then",                 url: MUL+"then.svg",                                                  tags: ["then","first","sequence","schedule","next","after"] },
+
+  // wait
+  { label: "Wait",                 url: MUL+"wait.svg",                                                 tags: ["wait","waiting","patience","stop","hold on","pause"] },
+  { label: "Waiting",              url: MUL+"waiting.svg",                                              tags: ["wait","waiting","patience","turn","hold on","stop"] },
+  { label: "My Turn",              url: MUL+"my turn.svg",                                               tags: ["turn","my turn","wait","waiting","patience","share"] },
+
+  // walking / movement
+  { label: "Walk",                 url: MUL+"walk.svg",                                                 tags: ["walk","walking","hallway","line","transition","movement"] },
+  { label: "Hallway",              url: MUL+"hallway.svg",                                               tags: ["hallway","walk","line","transition","corridor","movement"] },
+
+  // sit / stand
+  { label: "Sit Down",             url: MUL+"sit down.svg",                                             tags: ["sit down","sit","chair","seat","sitting","calm"] },
+  { label: "Stand Up",             url: MUL+"stand up.svg",                                              tags: ["stand up","stand","standing","rise","up","movement"] },
+
+  // English / language arts
+  { label: "English",              url: MUL+"english.svg",                                              tags: ["english","language arts","reading","writing","literacy","ela"] },
+  { label: "Language Arts",        url: MUL+"language arts.svg",                                        tags: ["language arts","english","ela","reading","writing","literacy"] },
+  { label: "Vocabulary",           url: MUL+"vocabulary.svg",                                           tags: ["vocabulary","words","english","language","reading","spelling"] },
+  { label: "Spelling",             url: MUL+"spelling.svg",                                             tags: ["spelling","words","writing","vocabulary","english","language"] },
+
+  // additional math
+  { label: "Counting",             url: MUL+"counting.svg",                                             tags: ["counting","count","math","numbers","numeracy","one two three"] },
+  { label: "Number Line",          url: MUL+"number line.svg",                                          tags: ["number line","math","numbers","count","sequence","order"] },
+
+  // additional PE/sports
+  { label: "Ball",                 url: MUL+"ball.svg",                                                 tags: ["ball","pe","sport","throw","catch","kick","game"] },
+  { label: "Running",              url: MUL+"running.svg",                                              tags: ["running","run","pe","exercise","sport","active","fitness"] },
+  { label: "Gym",                  url: MUL+"gym.svg",                                                  tags: ["gym","pe","physical education","exercise","sport","fitness"] },
+
+  // token / reward
+  { label: "Token Board",          url: MUL+"token board.svg",                                          tags: ["token board","token","reward","earn","sticker","points"] },
+  { label: "Reward",               url: MUL+"reward.svg",                                               tags: ["reward","prize","earn","token","reinforcement","good job"] },
+  { label: "Star Chart",           url: MUL+"star chart.svg",                                           tags: ["star chart","star","reward","earn","chart","points","token"] },
 ];
+
 
 // Pre-compute lowercase labels once at startup to avoid repeated conversions on each search.
 LOCAL_SYMBOL_CATALOG.forEach(e => { e._lower = e.label.toLowerCase(); });
@@ -1146,6 +1229,7 @@ function setupEditModal(){
     const a = state.activities.find(x => x.id === editingId);
     if (!a) return;
     symbolQuery.value = a.name;
+    editingStepIndex = null;
     runSymbolSearch(a.name);
   });
 
@@ -1161,20 +1245,138 @@ function setupEditModal(){
   });
 
   btnSearchSymbols.addEventListener("click", () => {
+    editingStepIndex = null;
     const q = symbolQuery.value.trim();
     runSymbolSearch(q);
+  });
+
+  btnAddStep.addEventListener("click", () => {
+    const a = state.activities.find(x => x.id === editingId);
+    if (!a) return;
+    if (!Array.isArray(a.steps)) a.steps = [];
+    a.steps.push({ label: "New Step", icon: "", completed: false });
+    saveState();
+    render();
+    renderStepsEditor();
   });
 }
 
 function openEditFor(id){
   editingId = id;
+  editingStepIndex = null;
   const a = state.activities.find(x => x.id === id);
   if (!a) return;
   editTitle.textContent = `Edit: ${a.name}`;
   symbolResults.innerHTML = "";
   symbolError.classList.add("hidden");
   symbolSpinner.classList.add("hidden");
+  renderStepsEditor();
   openOverlay(editOverlay);
+}
+
+function renderStepsEditor(){
+  const a = state.activities.find(x => x.id === editingId);
+  stepsEditor.innerHTML = "";
+
+  const steps = a ? (a.steps || []) : [];
+
+  if (steps.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "steps-empty-hint";
+    empty.textContent = "No steps yet. Click Add Step to build a mini-schedule for this activity.";
+    stepsEditor.appendChild(empty);
+    return;
+  }
+
+  steps.forEach((step, i) => {
+    const row = document.createElement("div");
+    row.className = "step-edit-row" + (editingStepIndex === i ? " step-edit-row--active" : "");
+
+    // Icon button — click to pick symbol for this step
+    const iconBtn = document.createElement("button");
+    iconBtn.className = "step-icon-btn";
+    iconBtn.title = "Change symbol for this step";
+    if (step.icon){
+      const img = document.createElement("img");
+      img.src = step.icon;
+      img.alt = "";
+      img.onerror = () => { img.remove(); iconBtn.textContent = "?"; };
+      iconBtn.appendChild(img);
+    } else {
+      iconBtn.textContent = "?";
+    }
+    iconBtn.addEventListener("click", () => {
+      editingStepIndex = i;
+      symbolQuery.value = step.label || "";
+      symbolError.textContent = "Select a symbol for this step — click a result to apply.";
+      symbolError.classList.remove("hidden");
+      runSymbolSearch(step.label || (a ? a.name : ""));
+      renderStepsEditor();
+    });
+
+    // Label input
+    const textInput = document.createElement("input");
+    textInput.type = "text";
+    textInput.className = "text-input step-label-input";
+    textInput.value = step.label || "";
+    textInput.placeholder = "Step label";
+    textInput.addEventListener("change", () => {
+      step.label = textInput.value.trim();
+      saveState();
+    });
+
+    // Controls: up / down / delete
+    const controls = document.createElement("div");
+    controls.className = "step-edit-controls";
+
+    const upBtn = document.createElement("button");
+    upBtn.className = "btn step-ctrl-btn";
+    upBtn.textContent = "Up";
+    upBtn.disabled = i === 0;
+    upBtn.addEventListener("click", () => {
+      [steps[i - 1], steps[i]] = [steps[i], steps[i - 1]];
+      if (a) a.steps = steps;
+      if (editingStepIndex === i) editingStepIndex = i - 1;
+      else if (editingStepIndex === i - 1) editingStepIndex = i;
+      saveState();
+      renderStepsEditor();
+    });
+
+    const downBtn = document.createElement("button");
+    downBtn.className = "btn step-ctrl-btn";
+    downBtn.textContent = "Down";
+    downBtn.disabled = i === steps.length - 1;
+    downBtn.addEventListener("click", () => {
+      [steps[i + 1], steps[i]] = [steps[i], steps[i + 1]];
+      if (a) a.steps = steps;
+      if (editingStepIndex === i) editingStepIndex = i + 1;
+      else if (editingStepIndex === i + 1) editingStepIndex = i;
+      saveState();
+      renderStepsEditor();
+    });
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-danger step-ctrl-btn";
+    delBtn.textContent = "X";
+    delBtn.addEventListener("click", () => {
+      steps.splice(i, 1);
+      if (a) a.steps = steps;
+      if (editingStepIndex === i) editingStepIndex = null;
+      else if (editingStepIndex !== null && editingStepIndex > i) editingStepIndex--;
+      saveState();
+      render();
+      renderStepsEditor();
+    });
+
+    controls.appendChild(upBtn);
+    controls.appendChild(downBtn);
+    controls.appendChild(delBtn);
+
+    row.appendChild(iconBtn);
+    row.appendChild(textInput);
+    row.appendChild(controls);
+    stepsEditor.appendChild(row);
+  });
 }
 
 function runSymbolSearch(q){
@@ -1196,20 +1398,42 @@ function runSymbolSearch(q){
     return;
   }
 
+  if (editingStepIndex !== null){
+    symbolError.textContent = "Click a symbol to apply it to the step.";
+    symbolError.classList.remove("hidden");
+  }
+
   results.forEach(item => {
     const tile = document.createElement("div");
     tile.className = "symbol";
     const img = document.createElement("img");
     img.src = item.url;
     img.alt = item.label || "";
+    img.onerror = () => { tile.remove(); };
     tile.appendChild(img);
 
     tile.addEventListener("click", () => {
       const a = state.activities.find(x => x.id === editingId);
       if (!a) return;
-      a.icon = item.url;
-      saveState();
-      render();
+
+      if (editingStepIndex !== null){
+        // Apply symbol to step
+        if (!Array.isArray(a.steps)) a.steps = [];
+        const step = a.steps[editingStepIndex];
+        if (step){
+          step.icon = item.url;
+          saveState();
+          editingStepIndex = null;
+          symbolResults.innerHTML = "";
+          symbolError.classList.add("hidden");
+          renderStepsEditor();
+        }
+      } else {
+        // Apply symbol to activity icon
+        a.icon = item.url;
+        saveState();
+        render();
+      }
     });
 
     symbolResults.appendChild(tile);
