@@ -75,7 +75,7 @@ const rowBottom = document.getElementById("rowBottom");
 const currentTimeEl = document.getElementById("currentTime");
 
 const currentBox = document.getElementById("currentBox");
-const currentMask = document.getElementById("currentMask");
+const timerDisk = document.getElementById("timerDisk");
 const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
 const currentRemaining = document.getElementById("currentRemaining");
@@ -126,11 +126,49 @@ let lastActiveId = null;
 let currentActivity = null;
 let floatZCounter = 900;
 
+// Timer animation state
+let timerState = null; // { activeStartSec, nextStartSec } or null
+let timerAnimFrameId = null;
+
+function setTimerState(activeStartSec, nextStartSec) {
+  timerState = { activeStartSec, nextStartSec };
+}
+
+function clearTimerState() {
+  timerState = null;
+  timerDisk.style.background = "transparent";
+}
+
+function updateTimerDiskFrame() {
+  if (!timerState) return;
+  const now = new Date();
+  const nowCT = getCentralParts(now);
+  // getSeconds() returns the same 0-59 value in any timezone (offsets are whole minutes)
+  const nowTotalSec = nowCT.hour * 3600 + nowCT.minute * 60 + now.getSeconds();
+  const { activeStartSec, nextStartSec } = timerState;
+  const total = Math.max(1, nextStartSec - activeStartSec);
+  const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
+  const remaining = Math.max(0, 1 - elapsed / total);
+  const deg = remaining * 360;
+  timerDisk.style.background =
+    `conic-gradient(from -90deg, red 0deg ${deg}deg, transparent ${deg}deg 360deg)`;
+}
+
+function startTimerRAF() {
+  if (timerAnimFrameId) cancelAnimationFrame(timerAnimFrameId);
+  function frame() {
+    updateTimerDiskFrame();
+    timerAnimFrameId = requestAnimationFrame(frame);
+  }
+  timerAnimFrameId = requestAnimationFrame(frame);
+}
+
 const transitionSound = new Audio("./mixkit-game-level-completed-2059.wav");
 
 // Init
 render();
 setupClock();
+startTimerRAF();
 setupCurrentBoxDrag();
 setupVideos();
 setupMeetings();
@@ -368,8 +406,9 @@ function tickSchedule(){
       currentRemaining.textContent =
         `Starts in ${formatRemaining(minsUntil).replace(" remaining","")}`;
 
-      // no progress yet
-      currentMask.style.height = "0%";
+      // Before start: nowTotalSec < activeStartSec, so elapsed=0 and remaining=1 → full red disk
+      // Use a 1-min duration so the RAF calculation always yields remaining=1 until schedule begins
+      setTimerState(startMin * 60, (startMin + 1) * 60);
     } else {
       setCurrentDisplay(null, null);
     }
@@ -425,8 +464,8 @@ function tickSchedule(){
   }
 
   setCurrentDisplay(active, remaining);
-  // Mask fills bottom->top as time progresses
-  currentMask.style.height = `${Math.round(progress*100)}%`;
+  // Update timer state for smooth RAF animation
+  setTimerState(activeStart * 60, nextStartMin * 60);
 
   markCards({ activeId: active.id, completedBeforeMin: activeStart, ordered });
 }
@@ -450,7 +489,7 @@ function setCurrentDisplay(activity, remainingMinutes){
     currentIcon.style.visibility = "hidden";
     currentName.textContent = "-";
     currentRemaining.textContent = "-";
-    currentMask.style.height = "0%";
+    clearTimerState();
     btnDetails.classList.add("hidden");
     currentBox.classList.remove("has-steps");
     return;

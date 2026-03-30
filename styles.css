@@ -205,9 +205,9 @@ body{
   top: calc(50% - 175px);
   width:350px;
   height:350px;
-  background:#fff;
+  background:#e8e8e8;
   border:6px solid var(--border);
-  border-radius:14px;
+  border-radius:50%;
   z-index:15;
   cursor:grab;
   user-select:none;
@@ -215,14 +215,13 @@ body{
 }
 .current-box:active{ cursor:grabbing; }
 
-.current-mask{
+.timer-disk{
   position:absolute;
-  left:0; right:0;
-  bottom:0;
-  height:0%;
-  background: rgba(255,213,79,0.6);
+  inset:0;
+  border-radius:50%;
+  background: transparent;
   pointer-events:none;
-  transition: height 250ms linear;
+  z-index:1;
 }
 
 .current-content{
@@ -234,21 +233,32 @@ body{
   justify-content:center;
   text-align:center;
   padding:14px;
-  gap:10px;
+  gap:6px;
+  z-index:2;
 }
-.current-icon{ width:250px; height:250px; object-fit:contain; }
-.current-name{ font-weight:900; font-size:1.8rem; line-height:1.1; }
-.current-remaining{ font-weight:900; font-size:1.2rem; color:#333; }
+.current-icon{
+  width:140px;
+  height:140px;
+  object-fit:contain;
+  border-radius:50%;
+  background: rgba(255,255,255,0.9);
+  padding:6px;
+}
+.current-name{ font-weight:900; font-size:1.4rem; line-height:1.1; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
+.current-remaining{ font-weight:900; font-size:1rem; color:#333; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
 .current-hint{
   position:absolute;
-  bottom:10px;
-  left:10px;
+  bottom:42px;
+  left:50%;
+  transform: translateX(-50%);
   font-size:0.85rem;
   color:#333;
   background: rgba(255,255,255,.75);
   border:3px solid var(--border);
   border-radius:10px;
   padding:6px 10px;
+  white-space:nowrap;
+  z-index:3;
 }
 
 .modal-overlay{
@@ -450,8 +460,8 @@ body{
 
 /* Shrink icon when details button is visible to prevent overflow */
 .current-box.has-steps .current-icon{
-  width:180px;
-  height:180px;
+  width:110px;
+  height:110px;
 }
 
 /* ---- Details popup ---- */
@@ -662,7 +672,7 @@ body{
 }
 @media (max-width: 900px){
   .current-box{ width:300px; height:300px; left: calc(50% - 150px); top: calc(50% - 150px); }
-  .current-icon{ width:200px; height:200px; }
+  .current-icon{ width:110px; height:110px; }
   .video-grid{ grid-template-columns: repeat(2, minmax(160px, 1fr)); }
   .symbol-grid{ grid-template-columns: repeat(4, 80px); }
 }
