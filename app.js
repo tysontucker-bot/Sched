@@ -896,61 +896,220 @@ function afternoonMeetingUrl(){
   return MEETING_URLS.afternoonMW;
 }
 
-/* ------------------ Symbol search: local catalog of image symbols ------------------ */
+/* ------------------ Symbol search: local AAC symbol catalog ------------------ */
 
 /**
- * Built-in local symbol catalog.
- * Each entry has a label, keywords to match against, and a URL pointing to a
- * Twemoji PNG image (72×72) served from the jsDelivr CDN.
- * Twemoji images are open-source (CC-BY 4.0), CORS-enabled, and require no API key.
- * The catalog works without any backend and is safe for static GitHub Pages deployments.
+ * Built-in local AAC symbol catalog.
+ * Each entry has a label, optional tags for search, and a URL pointing to a
+ * real AAC pictographic symbol image.
  *
- * Twemoji image base: https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/
- * Filename = Unicode codepoint(s) in lowercase hex, joined by hyphens for ZWJ sequences.
+ * Sources (all open-license, CORS-enabled, no API key required):
+ *   MUL — Mulberry Symbols (CC-BY-SA) via Open Symbols CDN
+ *   ARA — ARASAAC pictograms (CC-BY-NC-SA) via Open Symbols CDN
+ *   NP  — Noun Project icons via Open Symbols CDN
+ *   GS  — Global Symbols CDN
+ *
+ * The catalog works without any backend and is safe for static GitHub Pages deployments.
  */
-const T = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/"; // base URL shorthand
+const MUL = "https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/";
+const ARA = "https://d18vdu4p71yql0.cloudfront.net/libraries/arasaac/";
+const NP  = "https://d18vdu4p71yql0.cloudfront.net/libraries/noun-project/";
+const GS  = "https://globalsymbols.com/uploads/production/image/imagefile/";
 
 const LOCAL_SYMBOL_CATALOG = [
-  { label: "Math",            keywords: ["math","mathematics","numbers","count","addition","subtraction"], url: T+"1f522.png" },
-  { label: "Reading",         keywords: ["reading","book","books","read"],                                  url: T+"1f4da.png" },
-  { label: "Writing",         keywords: ["writing","write","journal","notes"],                              url: T+"1f4d3.png" },
-  { label: "Science",         keywords: ["science","experiment","lab","nature","biology"],                  url: T+"1f52c.png" },
-  { label: "Art",             keywords: ["art","draw","paint","drawing","painting","craft"],                url: T+"1f3a8.png" },
-  { label: "Music",           keywords: ["music","sing","song","instrument","band","choir"],                url: T+"1f3b5.png" },
-  { label: "PE / Gym",        keywords: ["gym","pe","physical","exercise","sport","sports","fitness"],      url: T+"1f3c3.png" },
-  { label: "Recess",          keywords: ["recess","play","playground","outside","outdoor"],                 url: T+"26bd.png"  },
-  { label: "Lunch",           keywords: ["lunch","eat","food","meal","cafeteria"],                          url: T+"1f96a.png" },
-  { label: "Snack",           keywords: ["snack","snacktime","fruit","apple"],                              url: T+"1f34e.png" },
-  { label: "Computer",        keywords: ["computer","technology","tech","coding","code","ipad","tablet"],   url: T+"1f4bb.png" },
-  { label: "Speech",          keywords: ["speech","talk","language","communication","therapy"],             url: T+"1f4ac.png" },
-  { label: "Rest / Break",    keywords: ["rest","quiet","calm","relax","break","nap"],                      url: T+"1f60c.png" },
-  { label: "Clean Up",        keywords: ["clean","cleanup","tidy","organize","sweep"],                      url: T+"1f9f9.png" },
-  { label: "Calendar",        keywords: ["calendar","schedule","morning meeting","circle","date"],          url: T+"1f4c5.png" },
-  { label: "Bathroom",        keywords: ["bathroom","restroom","toilet","lavatory"],                        url: T+"1f6bd.png" },
-  { label: "Home / Dismissal",keywords: ["home","house","dismiss","dismissal","goodbye","depart"],         url: T+"1f3e0.png" },
-  { label: "Morning",         keywords: ["morning","wake","start","begin","arrival","sunrise"],             url: T+"1f305.png" },
-  { label: "Afternoon",       keywords: ["afternoon","end","finish","done","sunset"],                      url: T+"1f306.png" },
-  { label: "Circle Time",     keywords: ["circle time","story","stories","storytime","carpet","meeting"],  url: T+"2b55.png"  },
-  { label: "Work Time",       keywords: ["work","work time","independent","solo","practice","desk"],        url: T+"1f4dd.png" },
-  { label: "Transition",      keywords: ["transition","move","walk","line","hallway","change"],             url: T+"1f6b6.png" },
-  { label: "Therapy",         keywords: ["therapy","occupational","ot","pt","support"],                    url: T+"1fa7a.png" },
-  { label: "Reward",          keywords: ["reward","star","award","prize","token","earn"],                   url: T+"2b50.png"  },
-  { label: "Bus",             keywords: ["bus","transport","school bus","ride"],                            url: T+"1f68c.png" },
-  { label: "Bell / Timer",    keywords: ["bell","alarm","timer","signal"],                                  url: T+"1f514.png" },
-  { label: "Health",          keywords: ["health","nurse","sick","medicine","doctor"],                      url: T+"1f3e5.png" },
-  { label: "Test / Quiz",     keywords: ["test","quiz","exam","assessment","check"],                        url: T+"1f4cb.png" },
-  { label: "Social Studies",  keywords: ["history","social studies","geography","map","globe","world"],    url: T+"1f30d.png" },
-  { label: "English",         keywords: ["english","literacy","grammar","spelling","phonics","reading"],   url: T+"1f4d6.png" },
-  { label: "Specials",        keywords: ["special","specials","elective","activity"],                       url: T+"1f31f.png" },
-  { label: "Water Break",     keywords: ["water","drink","fountain","hydrate","thirsty"],                   url: T+"1f4a7.png" },
-  { label: "Class / Lesson",  keywords: ["teacher","instructor","class","classroom","lesson","school"],    url: T+"1f469-200d-1f3eb.png" },
-  { label: "Games",           keywords: ["puzzle","game","games","fun","play","board"],                    url: T+"1f3ae.png" },
-  { label: "Video",           keywords: ["movie","video","watch","screen","film","tv"],                     url: T+"1f4fa.png" },
-  { label: "Free Choice",     keywords: ["free choice","choice","choices","free","explore","pick"],        url: T+"1f3af.png" },
-  { label: "Group Work",      keywords: ["group","team","partner","social","friends","collaborate"],        url: T+"1f465.png" },
-  { label: "Library",         keywords: ["library","librarian","checkout","books"],                         url: T+"1f4d4.png" },
-  { label: "Cooking",         keywords: ["cooking","bake","food prep","home ec","kitchen"],                 url: T+"1f373.png" },
-  { label: "Pledge",          keywords: ["flag","pledge","national anthem","patriot"],                      url: T+"1f6a9.png" },
+  /* ── General ── */
+
+  // math
+  { label: "Math",                 url: GS+"55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png", tags: ["math","mathematics","numbers","addition","subtraction","count"] },
+  { label: "Maths",                url: MUL+"maths.svg",                                                tags: ["math","maths","mathematics","numbers","count","numeracy"] },
+  { label: "Numbers",              url: MUL+"numbers.svg",                                              tags: ["math","numbers","counting","numeracy","digits"] },
+  { label: "Calculator",           url: MUL+"calculator.svg",                                           tags: ["math","calculator","compute","arithmetic"] },
+
+  // reading
+  { label: "Reading",              url: MUL+"reading.svg",                                              tags: ["reading","book","read","literacy","story"] },
+  { label: "Reading a Book",       url: MUL+"reading a book.svg",                                       tags: ["reading","book","read","story","literacy"] },
+  { label: "Book",                 url: MUL+"book.svg",                                                  tags: ["reading","book","read","text","story"] },
+  { label: "Books",                url: MUL+"books.svg",                                                 tags: ["reading","books","library","text","literacy"] },
+
+  // writing
+  { label: "Writing",              url: ARA+"writing.png.varianted-skin.png",                           tags: ["writing","write","journal","notes","pencil"] },
+  { label: "Handwriting",          url: MUL+"writing.svg",                                              tags: ["writing","write","handwriting","notebook","notes"] },
+  { label: "Pencil",               url: MUL+"pencil.svg",                                               tags: ["writing","pencil","draw","notes","pen"] },
+
+  // science
+  { label: "Science",              url: MUL+"science.svg",                                              tags: ["science","experiment","lab","biology","nature"] },
+  { label: "Experiment",           url: MUL+"experiment.svg",                                           tags: ["science","experiment","lab","beaker","chemistry"] },
+  { label: "Laboratory",           url: ARA+"science.png",                                              tags: ["science","lab","laboratory","experiment","research"] },
+
+  // lunch
+  { label: "Lunch",                url: MUL+"lunch 2.svg",                                              tags: ["lunch","eat","food","meal","cafeteria"] },
+  { label: "Lunchtime",            url: MUL+"lunch.svg",                                                tags: ["lunch","food","meal","cafeteria","eat"] },
+  { label: "Eating",               url: MUL+"eating.svg",                                               tags: ["lunch","eat","food","meal","cafeteria"] },
+  { label: "Lunch Tray",           url: ARA+"lunch.png",                                                tags: ["lunch","tray","cafeteria","meal","eat"] },
+
+  // recess
+  { label: "Recess",               url: GS+"15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png",  tags: ["recess","play","playground","outside","outdoor"] },
+  { label: "Playground",           url: MUL+"playground.svg",                                           tags: ["recess","playground","play","outside","swing"] },
+  { label: "Outside",              url: MUL+"outside.svg",                                              tags: ["recess","outside","outdoor","play","fresh air"] },
+  { label: "Play",                 url: GS+"46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png",  tags: ["recess","play","outside","playground","fun"] },
+
+  // PE
+  { label: "PE",                   url: MUL+"PE.svg.varianted-skin.svg",                               tags: ["pe","gym","physical","exercise","sport","fitness"] },
+  { label: "Physical Education",   url: MUL+"physical education.svg",                                   tags: ["pe","physical education","gym","exercise","sport"] },
+  { label: "Exercise",             url: MUL+"exercise.svg",                                             tags: ["pe","exercise","gym","fitness","sport","active"] },
+  { label: "Sports",               url: ARA+"physical education.png",                                   tags: ["pe","sports","exercise","gym","athletics","active"] },
+
+  // music
+  { label: "Music",                url: NP+"Music-24b69f41d0.svg",                                      tags: ["music","sing","song","instrument","band","choir"] },
+  { label: "Music Class",          url: MUL+"music.svg",                                                tags: ["music","class","song","instrument","band"] },
+  { label: "Singing",              url: MUL+"singing.svg",                                              tags: ["music","singing","sing","song","choir","voice"] },
+  { label: "Instruments",          url: ARA+"music.png",                                                tags: ["music","instruments","band","play music","instrument"] },
+
+  // art
+  { label: "Art",                  url: MUL+"art.svg",                                                  tags: ["art","draw","paint","drawing","craft","creative"] },
+  { label: "Painting",             url: MUL+"painting.svg",                                             tags: ["art","painting","paint","brush","craft","creative"] },
+  { label: "Drawing",              url: MUL+"drawing.svg",                                              tags: ["art","drawing","draw","sketch","pencil","creative"] },
+  { label: "Art Class",            url: ARA+"art.png",                                                  tags: ["art","craft","make","create","project","art class"] },
+
+  // library
+  { label: "Library",              url: MUL+"library.svg",                                              tags: ["library","books","checkout","librarian","reading"] },
+  { label: "Library Books",        url: MUL+"library books.svg",                                        tags: ["library","books","reading","checkout","shelf"] },
+  { label: "Bookshelf",            url: MUL+"bookshelf.svg",                                            tags: ["library","bookshelf","books","reading","shelf"] },
+  { label: "Book Checkout",        url: ARA+"library.png",                                              tags: ["library","checkout","books","borrow","librarian"] },
+
+  // bus
+  { label: "Bus",                  url: MUL+"bus.svg",                                                  tags: ["bus","school bus","transport","ride","travel"] },
+  { label: "School Bus",           url: MUL+"school bus.svg",                                           tags: ["bus","school bus","transport","ride","pickup"] },
+  { label: "Riding the Bus",       url: ARA+"school bus.png",                                           tags: ["bus","school bus","transport","ride","going home"] },
+
+  // breakfast
+  { label: "Breakfast",            url: GS+"6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg",   tags: ["breakfast","morning","eat","food","meal"] },
+  { label: "Breakfast Food",       url: MUL+"breakfast.svg",                                            tags: ["breakfast","food","morning","meal","eat"] },
+  { label: "Morning Meal",         url: ARA+"breakfast.png",                                            tags: ["breakfast","morning","food","eat","meal"] },
+
+  // bathroom
+  { label: "Bathroom",             url: MUL+"bathroom.svg",                                             tags: ["bathroom","restroom","toilet","lavatory","wash"] },
+  { label: "Toilet",               url: MUL+"toilet.svg",                                               tags: ["bathroom","toilet","restroom","lavatory","flush"] },
+  { label: "Wash Hands",           url: MUL+"wash hands.svg",                                           tags: ["bathroom","wash hands","hygiene","toilet","clean"] },
+  { label: "Restroom",             url: ARA+"bathroom.png",                                             tags: ["bathroom","restroom","toilet","lavatory","hygiene"] },
+
+  /* ── Tasks / Materials ── */
+
+  // worksheets
+  { label: "Worksheet",            url: GS+"15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png",  tags: ["worksheet","worksheets","paper","assignment","work"] },
+  { label: "Worksheets",           url: MUL+"worksheets.svg",                                           tags: ["worksheets","worksheet","paper","assignment","task"] },
+  { label: "Paper Work",           url: MUL+"paper.svg",                                                tags: ["worksheet","paper","work","assignment","write"] },
+  { label: "Assignment",           url: ARA+"worksheet.png",                                            tags: ["worksheet","assignment","paper","task","work"] },
+
+  // file folder tasks
+  { label: "File Folder",          url: GS+"3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg",   tags: ["file folder","folder","file","task","work"] },
+  { label: "File Folder Task",     url: MUL+"file folder.svg",                                         tags: ["file folder","folder","file","task","activity"] },
+  { label: "Folder Work",          url: ARA+"folder.png",                                              tags: ["file folder","folder","activity","work","task"] },
+
+  // flashcards
+  { label: "Flashcards",           url: MUL+"flashcards.svg",                                           tags: ["flashcards","cards","flash","memory","study"] },
+  { label: "Flash Cards",          url: MUL+"flash cards.svg",                                          tags: ["flashcards","flash cards","study","memory","practice"] },
+  { label: "Study Cards",          url: ARA+"flashcards.png",                                           tags: ["flashcards","cards","study","memory","learn"] },
+
+  // small group
+  { label: "Small Group",          url: MUL+"small group.svg",                                          tags: ["small group","group","partner","team","together"] },
+  { label: "Group Work",           url: GS+"21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png",  tags: ["small group","group","team","partner","work together"] },
+  { label: "Group",                url: MUL+"group.svg",                                                tags: ["small group","group","team","partner","collaborate"] },
+  { label: "Working Together",     url: ARA+"small group.png",                                          tags: ["small group","group","team","partner","together"] },
+
+  // independent work
+  { label: "Independent Work",     url: MUL+"independent work.svg",                                     tags: ["independent work","independent","solo","alone","work"] },
+  { label: "Work Alone",           url: MUL+"working alone.svg",                                        tags: ["independent work","alone","solo","independent","desk"] },
+  { label: "Desk Work",            url: GS+"15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png",  tags: ["independent work","desk","alone","solo","work"] },
+  { label: "My Work",              url: ARA+"independent work.png",                                     tags: ["independent work","my work","alone","independent","task"] },
+
+  // centers
+  { label: "Centers",              url: MUL+"centers.svg",                                              tags: ["centers","centre","station","rotation","activity"] },
+  { label: "Learning Centers",     url: MUL+"learning centres.svg",                                     tags: ["centers","learning","station","activity","rotation"] },
+  { label: "Stations",             url: ARA+"centers.png",                                              tags: ["centers","stations","activity","learning","rotation"] },
+
+  // computer
+  { label: "Computer",             url: MUL+"computer.svg",                                             tags: ["computer","technology","tech","coding","screen","laptop"] },
+  { label: "Laptop",               url: MUL+"laptop.svg",                                               tags: ["computer","laptop","technology","tech","screen"] },
+  { label: "Desktop Computer",     url: ARA+"computer.png",                                             tags: ["computer","desktop","technology","screen","code"] },
+
+  // tablet
+  { label: "Tablet",               url: MUL+"tablet.svg",                                               tags: ["tablet","ipad","technology","screen","computer"] },
+  { label: "iPad",                 url: MUL+"ipad.svg",                                                  tags: ["tablet","ipad","touch screen","computer","technology"] },
+  { label: "Touch Screen",         url: ARA+"tablet.png",                                               tags: ["tablet","touch screen","ipad","computer","technology"] },
+
+  // sorting
+  { label: "Sorting",              url: MUL+"sorting.svg",                                              tags: ["sorting","sort","organize","categorize","classify","order"] },
+  { label: "Sort Objects",         url: MUL+"sorting objects.svg",                                      tags: ["sorting","sort","objects","categorize","classify"] },
+  { label: "Organize",             url: ARA+"sorting.png",                                              tags: ["sorting","sort","classify","order","organize"] },
+
+  // matching
+  { label: "Matching",             url: MUL+"matching.svg",                                             tags: ["matching","match","same","compare","pair"] },
+  { label: "Match",                url: MUL+"match.svg",                                                tags: ["matching","match","pair","same","find"] },
+  { label: "Find the Match",       url: ARA+"matching.png",                                             tags: ["matching","match","find","pair","same"] },
+
+  // cutting
+  { label: "Cutting",              url: MUL+"cutting.svg",                                              tags: ["cutting","cut","scissors","snip","trim"] },
+  { label: "Scissors",             url: MUL+"scissors.svg",                                             tags: ["cutting","scissors","cut","snip","trim"] },
+  { label: "Cut",                  url: ARA+"cutting.png",                                              tags: ["cutting","cut","scissors","paper","trim"] },
+
+  // gluing
+  { label: "Gluing",               url: MUL+"gluing.svg",                                               tags: ["gluing","glue","paste","stick","craft"] },
+  { label: "Glue",                 url: MUL+"glue.svg",                                                 tags: ["gluing","glue","stick","paste","craft"] },
+  { label: "Paste",                url: ARA+"glue.png",                                                 tags: ["gluing","paste","glue","stick","craft"] },
+
+  // coloring
+  { label: "Coloring",             url: MUL+"colouring.svg",                                            tags: ["coloring","colour","color","crayon","art","drawing"] },
+  { label: "Crayons",              url: MUL+"crayons.svg",                                              tags: ["coloring","crayons","color","draw","art"] },
+  { label: "Color",                url: ARA+"colouring.png",                                            tags: ["coloring","color","colouring","crayon","art","draw"] },
+
+  // puzzles
+  { label: "Puzzles",              url: MUL+"puzzles.svg",                                              tags: ["puzzles","puzzle","jigsaw","piece","fit"] },
+  { label: "Jigsaw Puzzle",        url: MUL+"jigsaw puzzle.svg",                                        tags: ["puzzles","jigsaw","puzzle","piece","fit together"] },
+  { label: "Puzzle",               url: ARA+"puzzle.png",                                               tags: ["puzzles","puzzle","piece","jigsaw","fit"] },
+
+  /* ── Routines ── */
+
+  // clean up
+  { label: "Clean Up",             url: MUL+"clean up.svg",                                             tags: ["clean up","clean","tidy","organize","sweep","put away"] },
+  { label: "Tidying Up",           url: MUL+"tidying up.svg",                                           tags: ["clean up","tidy","tidying","organize","put away","clear"] },
+  { label: "Put Away",             url: MUL+"putting away.svg",                                         tags: ["clean up","put away","tidy","organize","clean"] },
+  { label: "Clean",                url: ARA+"clean up.png",                                             tags: ["clean up","clean","tidy","sweep","organize"] },
+
+  // line up
+  { label: "Line Up",              url: MUL+"line up.svg",                                              tags: ["line up","lineup","line","queue","stand","wait"] },
+  { label: "Stand in Line",        url: MUL+"standing in line.svg",                                     tags: ["line up","stand","line","queue","wait","hallway"] },
+  { label: "Queue",                url: ARA+"line up.png",                                              tags: ["line up","queue","line","stand","wait in line"] },
+
+  // transition
+  { label: "Transition",           url: MUL+"transition.svg",                                           tags: ["transition","move","change","walk","hallway","switch"] },
+  { label: "Moving On",            url: MUL+"moving on.svg",                                            tags: ["transition","move","change","switch","walk","change activity"] },
+  { label: "Change Activity",      url: ARA+"transition.png",                                           tags: ["transition","change","activity","move","switch","hallway"] },
+
+  // quiet time
+  { label: "Quiet Time",           url: MUL+"quiet.svg",                                                tags: ["quiet time","quiet","calm","silence","rest","break"] },
+  { label: "Quiet",                url: MUL+"quiet time.svg",                                           tags: ["quiet time","quiet","silence","calm","rest","shhh"] },
+  { label: "Silent",               url: ARA+"quiet.png",                                                tags: ["quiet time","quiet","silent","calm","peace","shhh"] },
+
+  // sensory break
+  { label: "Sensory Break",        url: MUL+"sensory break.svg",                                        tags: ["sensory break","sensory","calm","break","rest","regulation"] },
+  { label: "Calm Down",            url: MUL+"calm down.svg",                                            tags: ["sensory break","calm","regulation","break","sensory","relax"] },
+  { label: "Break Time",           url: MUL+"break.svg",                                                tags: ["sensory break","break","rest","calm","regulation","sensory"] },
+
+  // help
+  { label: "Help",                 url: MUL+"help.svg",                                                 tags: ["help","ask","support","raise hand","assistance"] },
+  { label: "Ask for Help",         url: MUL+"asking for help.svg",                                      tags: ["help","ask","raise hand","support","assistance","need help"] },
+  { label: "I Need Help",          url: ARA+"help.png",                                                 tags: ["help","need help","ask","support","assistance","raise hand"] },
+
+  // finished
+  { label: "Finished",             url: MUL+"finished.svg",                                             tags: ["finished","done","complete","all done","end"] },
+  { label: "All Done",             url: MUL+"all done.svg",                                             tags: ["finished","all done","done","complete","end","fin"] },
+  { label: "Done",                 url: ARA+"finished.png",                                             tags: ["finished","done","complete","all done","end","fin"] },
+
+  // turn in
+  { label: "Turn In",              url: MUL+"turn in.svg",                                              tags: ["turn in","hand in","submit","give to teacher","finish"] },
+  { label: "Hand In",              url: MUL+"handing in.svg",                                           tags: ["turn in","hand in","submit","give","teacher","work"] },
+  { label: "Submit Work",          url: ARA+"turn in.png",                                              tags: ["turn in","submit","hand in","work","teacher","give"] },
 ];
 
 // Pre-compute lowercase labels once at startup to avoid repeated conversions on each search.
@@ -958,16 +1117,17 @@ LOCAL_SYMBOL_CATALOG.forEach(e => { e._lower = e.label.toLowerCase(); });
 
 /**
  * Search the local catalog for symbols matching the query.
- * Matches any term in the query against entry keywords and labels.
+ * Matches any term in the query against entry tags and labels.
  * Returns results immediately — no network requests.
  */
 function searchLocalSymbols(q) {
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   const results = [];
   for (const entry of LOCAL_SYMBOL_CATALOG) {
+    const entryTags = entry.tags || [];
     const matched = terms.some(t =>
       entry._lower.includes(t) ||
-      entry.keywords.some(k => k.includes(t) || t.includes(k))
+      entryTags.some(k => k.includes(t) || t.includes(k))
     );
     if (matched) {
       results.push({ url: entry.url, label: entry.label });
