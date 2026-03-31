@@ -200,18 +200,18 @@ body{
 .card.edit-mode .delbtn{ display:block; }
 
 .current-box{
+  --timer-size: 350px;
   position:fixed;
-  left: calc(50% - 175px);
-  top: calc(50% - 175px);
-  width:350px;
-  height:350px;
+  left: calc(50% - var(--timer-size) / 2);
+  top: calc(50% - var(--timer-size) / 2);
+  width: var(--timer-size);
+  height: var(--timer-size);
   background:#e8e8e8;
   border:6px solid var(--border);
   border-radius:50%;
   z-index:15;
   cursor:grab;
   user-select:none;
-  overflow:hidden;
 }
 .current-box:active{ cursor:grabbing; }
 
@@ -232,32 +232,53 @@ body{
   align-items:center;
   justify-content:center;
   text-align:center;
-  padding:14px;
-  gap:6px;
+  padding: calc(var(--timer-size) * 0.04);
+  gap: calc(var(--timer-size) * 0.017);
   z-index:2;
 }
 .current-icon{
-  width:140px;
-  height:140px;
+  width: calc(var(--timer-size) * 0.4);
+  height: calc(var(--timer-size) * 0.4);
   object-fit:contain;
   border-radius:50%;
   mix-blend-mode: multiply;
 }
-.current-name{ font-weight:900; font-size:1.4rem; line-height:1.1; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
-.current-remaining{ font-weight:900; font-size:1rem; color:#333; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
+.current-name{ font-weight:900; font-size: max(10px, calc(var(--timer-size) * 0.064)); line-height:1.1; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
+.current-remaining{ font-weight:900; font-size: max(9px, calc(var(--timer-size) * 0.046)); color:#333; text-shadow:0 1px 3px rgba(255,255,255,0.8); }
 .current-hint{
   position:absolute;
-  bottom:42px;
+  bottom: calc(var(--timer-size) * 0.12);
   left:50%;
   transform: translateX(-50%);
-  font-size:0.85rem;
+  font-size: max(8px, calc(var(--timer-size) * 0.0243));
   color:#333;
   background: rgba(255,255,255,.75);
   border:3px solid var(--border);
   border-radius:10px;
-  padding:6px 10px;
+  padding: calc(var(--timer-size) * 0.017) calc(var(--timer-size) * 0.029);
   white-space:nowrap;
   z-index:3;
+}
+
+.timer-resize{
+  position:absolute;
+  right:6px;
+  bottom:6px;
+  width:18px;
+  height:18px;
+  border-radius:6px;
+  border:3px solid var(--border);
+  background: rgba(255,255,255,0.9);
+  cursor: nwse-resize;
+  z-index:16;
+}
+.timer-resize::before{
+  content:"";
+  position:absolute;
+  inset:3px;
+  border-right:3px solid rgba(0,0,0,0.5);
+  border-bottom:3px solid rgba(0,0,0,0.5);
+  border-radius:2px;
 }
 
 .modal-overlay{
@@ -453,14 +474,14 @@ body{
 
 /* ---- Details button inside current-box ---- */
 .details-btn{
-  font-size:0.85rem;
-  padding:6px 14px;
+  font-size: max(8px, calc(var(--timer-size, 350px) * 0.0243));
+  padding: calc(var(--timer-size, 350px) * 0.017) calc(var(--timer-size, 350px) * 0.04);
 }
 
 /* Shrink icon when details button is visible to prevent overflow */
 .current-box.has-steps .current-icon{
-  width:110px;
-  height:110px;
+  width: calc(var(--timer-size) * 0.314);
+  height: calc(var(--timer-size) * 0.314);
 }
 
 /* ---- Details popup ---- */
