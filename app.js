@@ -13,6 +13,7 @@ const STORAGE_KEY = "sched:v1";
 const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
+const SIZE_KEY = "sched:currentBoxSize:v1";
 
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
@@ -76,6 +77,7 @@ const currentTimeEl = document.getElementById("currentTime");
 
 const currentBox = document.getElementById("currentBox");
 const timerDisk = document.getElementById("timerDisk");
+const timerResize = document.getElementById("timerResize");
 const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
 const currentRemaining = document.getElementById("currentRemaining");
@@ -170,6 +172,7 @@ render();
 setupClock();
 startTimerRAF();
 setupCurrentBoxDrag();
+setupTimerResize();
 setupVideos();
 setupMeetings();
 setupEditModal();
@@ -519,6 +522,7 @@ function setupCurrentBoxDrag(){
   let boxStartLeft = 0, boxStartTop = 0;
 
   currentBox.addEventListener("mousedown", (e) => {
+    if (e.target === timerResize) return;
     dragging = true;
     startX = e.clientX;
     startY = e.clientY;
@@ -540,6 +544,56 @@ function setupCurrentBoxDrag(){
     const r = currentBox.getBoundingClientRect();
     localStorage.setItem(POS_KEY, JSON.stringify({ x: r.left, y: r.top }));
   });
+}
+
+function setupTimerResize(){
+  const MIN_SIZE = 160;
+  const MAX_SIZE = 600;
+  const PAD = 8;
+
+  // Restore saved size
+  const savedSize = safeParse(localStorage.getItem(SIZE_KEY));
+  if (typeof savedSize === "number" && savedSize >= MIN_SIZE && savedSize <= MAX_SIZE){
+    currentBox.style.setProperty("--timer-size", `${savedSize}px`);
+  }
+
+  let resizing = false;
+  let startX = 0, startY = 0;
+  let startSize = 0;
+  let startCenterX = 0, startCenterY = 0;
+
+  timerResize.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizing = true;
+    timerResize.setPointerCapture(e.pointerId);
+    startX = e.clientX;
+    startY = e.clientY;
+    const r = currentBox.getBoundingClientRect();
+    startSize = r.width;
+    startCenterX = r.left + r.width / 2;
+    startCenterY = r.top + r.height / 2;
+  });
+
+  timerResize.addEventListener("pointermove", (e) => {
+    if (!resizing) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    // Use the larger of dx/dy so the circle grows uniformly from any direction
+    const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+    const newSize = clamp(startSize + delta, MIN_SIZE, MAX_SIZE);
+    currentBox.style.setProperty("--timer-size", `${newSize}px`);
+    // Keep the center of the timer fixed at the position captured on pointerdown
+    moveWithinBoard(currentBox, startCenterX - newSize / 2, startCenterY - newSize / 2);
+  });
+
+  timerResize.addEventListener("pointerup", (e) => {
+    if (!resizing) return;
+    resizing = false;
+    localStorage.setItem(SIZE_KEY, JSON.stringify(currentBox.offsetWidth));
+  });
+
+  timerResize.addEventListener("pointercancel", () => { resizing = false; });
 }
 
 function moveWithinBoard(el, left, top){
