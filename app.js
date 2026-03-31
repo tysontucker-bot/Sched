@@ -1065,6 +1065,7 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Playground",           url: MUL+"playground.svg",                                           tags: ["recess","playground","play","outside","swing"] },
   { label: "Outside",              url: MUL+"outside.svg",                                              tags: ["recess","outside","outdoor","play","fresh air"] },
   { label: "Play",                 url: GS+"46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png",  tags: ["recess","play","outside","playground","fun"] },
+  { label: "Playground",           url: "./Playground.png",                                             tags: ["recess","playground","play","outside","swing","fun"] },
 
   // PE
   { label: "PE",                   url: MUL+"PE.svg.varianted-skin.svg",                               tags: ["pe","gym","physical","exercise","sport","fitness"] },
@@ -1113,11 +1114,13 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Worksheets",           url: MUL+"worksheets.svg",                                           tags: ["worksheets","worksheet","paper","assignment","task"] },
   { label: "Paper Work",           url: MUL+"paper.svg",                                                tags: ["worksheet","paper","work","assignment","write"] },
   { label: "Assignment",           url: ARA+"worksheet.png",                                            tags: ["worksheet","assignment","paper","task","work"] },
+  { label: "Worksheets",           url: "./Worksheets.png",                                             tags: ["worksheets","worksheet","paper","assignment","task","work"] },
 
   // file folder tasks
   { label: "File Folder",          url: GS+"3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg",   tags: ["file folder","folder","file","task","work"] },
   { label: "File Folder Task",     url: MUL+"file folder.svg",                                         tags: ["file folder","folder","file","task","activity"] },
   { label: "Folder Work",          url: ARA+"folder.png",                                              tags: ["file folder","folder","activity","work","task"] },
+  { label: "File Folder",          url: "./File_Folder.png",                                           tags: ["file folder","folder","file","task","work","activity"] },
 
   // flashcards
   { label: "Flashcards",           url: MUL+"flashcards.svg",                                           tags: ["flashcards","cards","flash","memory","study"] },
@@ -1135,6 +1138,7 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Work Alone",           url: MUL+"working alone.svg",                                        tags: ["independent work","alone","solo","independent","desk"] },
   { label: "Desk Work",            url: GS+"15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png",  tags: ["independent work","desk","alone","solo","work"] },
   { label: "My Work",              url: ARA+"independent work.png",                                     tags: ["independent work","my work","alone","independent","task"] },
+  { label: "Seatwork",             url: "./Seatwork.png",                                               tags: ["seatwork","seat work","independent work","desk","work","solo"] },
 
   // centers
   { label: "Centers",              url: MUL+"centers.svg",                                              tags: ["centers","centre","station","rotation","activity"] },
@@ -1236,12 +1240,14 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Snack",                url: GS+"21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png",  tags: ["snack","eat","food","break","snack time"] },
   { label: "Snack Time",           url: MUL+"snack.svg",                                                tags: ["snack","snack time","eat","food","break"] },
   { label: "Eating Snack",         url: MUL+"eating a snack.svg",                                       tags: ["snack","eating","snack time","food","break"] },
+  { label: "Snack",                url: "./Snack.png",                                                  tags: ["snack","snack time","eat","food","break"] },
 
   // attendance / morning
   { label: "Attendance",           url: GS+"3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg",   tags: ["attendance","register","morning","greeting","check in"] },
   { label: "Morning Meeting",      url: GS+"21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png",  tags: ["morning meeting","meeting","greeting","circle","morning"] },
   { label: "Circle Time",          url: MUL+"circle time.svg",                                          tags: ["circle time","morning","meeting","group","gathering","calendar"] },
   { label: "Calendar",             url: MUL+"calendar.svg",                                             tags: ["calendar","date","morning","schedule","month","day"] },
+  { label: "Attendance",           url: "./Attendance.png",                                             tags: ["attendance","register","morning","greeting","check in"] },
 
   // rest / break
   { label: "Rest",                 url: GS+"3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg",   tags: ["rest","relax","quiet","break","sleep","down time"] },
@@ -1252,6 +1258,7 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Swing",                url: GS+"46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png",  tags: ["swing","sensory","movement","vestibular","playground","play"] },
   { label: "Sensory Equipment",    url: MUL+"sensory.svg",                                              tags: ["sensory","equipment","swing","vestibular","tactile","regulation"] },
   { label: "Movement Break",       url: MUL+"movement break.svg",                                       tags: ["movement break","sensory","movement","active","exercise","break"] },
+  { label: "Swing",                url: "./Swing.png",                                                  tags: ["swing","sensory","movement","vestibular","playground","play"] },
 
   // television / screen time
   { label: "Television",           url: GS+"6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg",   tags: ["television","tv","video","screen","movie","show","watch"] },
