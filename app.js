@@ -151,7 +151,7 @@ function updateTimerDiskFrame() {
   const remaining = Math.max(0, 1 - elapsed / total);
   const deg = remaining * 360;
   timerDisk.style.background =
-    `conic-gradient(from -90deg, red 0deg ${deg}deg, transparent ${deg}deg 360deg)`;
+    `conic-gradient(from 0deg, red 0deg ${deg}deg, transparent ${deg}deg 360deg)`;
 }
 
 function startTimerRAF() {
