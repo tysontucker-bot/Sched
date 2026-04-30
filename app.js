@@ -58,7 +58,7 @@ const VIDEOS = [
   { title:"Roller Coaster",id:"-5ajUAyLUOg",  img:"https://img.youtube.com/vi/-5ajUAyLUOg/mqdefault.jpg" },
   { title:"Snack",         id:"i_JQwhPKzdI",  img:"https://img.youtube.com/vi/i_JQwhPKzdI/mqdefault.jpg" },
   { title:"Lunch",         id:"JegZYWlaq8w",  img:"https://img.youtube.com/vi/JegZYWlaq8w/mqdefault.jpg" },
-  { title:"Break",         id:"o_YV7lSEbO0",  img:"https://img.youtube.com/vi/o_YV7lSEbO0/mqdefault.jpg" },
+  { title:"Break",         id:"o_YV7lSEbO0",  img:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/resting.svg" },
   { title:"Afternoon",     id:"eji41cH7R54",  img:"https://img.youtube.com/vi/eji41cH7R54/mqdefault.jpg" },
   { title:"Animals",       id:"ecVQvgnKDug",  img:"https://img.youtube.com/vi/ecVQvgnKDug/mqdefault.jpg" },
   { title:"Numberblocks",  id:"GnVLJowv6eU",  img:"https://img.youtube.com/vi/GnVLJowv6eU/mqdefault.jpg" },
