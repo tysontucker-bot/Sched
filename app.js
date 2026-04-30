@@ -54,14 +54,14 @@ const DEFAULT_ACTIVITIES = [
 ];
 
 const VIDEOS = [
-  { title:"Morning", id:"KuMdgPu4HEI" },
-  { title:"Roller Coaster", id:"-5ajUAyLUOg" },
-  { title:"Snack", id:"i_JQwhPKzdI" },
-  { title:"Lunch", id:"JegZYWlaq8w" },
-  { title:"Break", id:"o_YV7lSEbO0" },
-  { title:"Afternoon", id:"eji41cH7R54" },
-  { title:"Animals", id:"ecVQvgnKDug" },
-  { title:"Numberblocks", id:"GnVLJowv6eU" },
+  { title:"Morning",       id:"KuMdgPu4HEI",  img:"https://img.youtube.com/vi/KuMdgPu4HEI/mqdefault.jpg" },
+  { title:"Roller Coaster",id:"-5ajUAyLUOg",  img:"https://img.youtube.com/vi/-5ajUAyLUOg/mqdefault.jpg" },
+  { title:"Snack",         id:"i_JQwhPKzdI",  img:"https://img.youtube.com/vi/i_JQwhPKzdI/mqdefault.jpg" },
+  { title:"Lunch",         id:"JegZYWlaq8w",  img:"https://img.youtube.com/vi/JegZYWlaq8w/mqdefault.jpg" },
+  { title:"Break",         id:"o_YV7lSEbO0",  img:"https://img.youtube.com/vi/o_YV7lSEbO0/mqdefault.jpg" },
+  { title:"Afternoon",     id:"eji41cH7R54",  img:"https://img.youtube.com/vi/eji41cH7R54/mqdefault.jpg" },
+  { title:"Animals",       id:"ecVQvgnKDug",  img:"https://img.youtube.com/vi/ecVQvgnKDug/mqdefault.jpg" },
+  { title:"Numberblocks",  id:"GnVLJowv6eU",  img:"https://img.youtube.com/vi/GnVLJowv6eU/mqdefault.jpg" },
 ];
 
 const MEETING_URLS = {
@@ -613,8 +613,17 @@ function setupVideos(){
   videoButtons.innerHTML = "";
   VIDEOS.forEach(v => {
     const b = document.createElement("button");
-    b.className = "btn btn-yellow";
-    b.textContent = v.title;
+    b.className = "btn btn-yellow video-btn";
+    if (v.img) {
+      const img = document.createElement("img");
+      img.src = v.img;
+      img.alt = v.title;
+      img.className = "video-btn-thumb";
+      b.appendChild(img);
+    }
+    const label = document.createElement("span");
+    label.textContent = v.title;
+    b.appendChild(label);
     b.addEventListener("click", () => openVideoFloat(v.title, v.id));
     videoButtons.appendChild(b);
   });

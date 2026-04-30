@@ -349,6 +349,25 @@ body{
   gap:12px;
 }
 
+.video-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  text-align:center;
+}
+
+.video-btn-thumb{
+  width:100%;
+  max-width:160px;
+  height:90px;
+  object-fit:cover;
+  border-radius:8px;
+  border:3px solid var(--border);
+  display:block;
+}
+
 .meetings-list{ display:flex; flex-direction:column; gap:10px; }
 .hint{ font-weight:800; color:#333; }
 
