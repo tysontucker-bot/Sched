@@ -19,6 +19,7 @@
       <div class="topbar-actions">
         <button class="btn" id="btnVideos">Videos</button>
         <button class="btn" id="btnMeetings">Meetings</button>
+        <button class="btn" id="btnWebsites">Websites</button>
         <button class="btn" id="btnSettings">Settings</button>
         <button class="btn btn-danger hidden" id="btnReset">Reset Schedule</button>
       </div>
@@ -108,6 +109,36 @@
             <div id="stepsEditor" class="steps-editor"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Websites modal -->
+    <div class="modal-overlay hidden" id="websitesOverlay" role="dialog" aria-modal="true">
+      <div class="modal" aria-label="Websites">
+        <div class="modal-header">
+          <div class="modal-title">Websites</div>
+          <button class="xbtn" id="closeWebsites">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="meetings-list">
+            <button class="btn btn-yellow" id="openWebPowerSchool">PowerSchool</button>
+            <button class="btn btn-yellow" id="openClassroomTimer">Classroom Timer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classroom Timer modal -->
+    <div class="modal-overlay hidden" id="timerPickerOverlay" role="dialog" aria-modal="true">
+      <div class="modal" aria-label="Classroom Timer">
+        <div class="modal-header">
+          <div class="modal-title">Classroom Timer</div>
+          <button class="xbtn" id="closeTimerPicker">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="timer-grid" id="timerButtons"></div>
+        </div>
+        <div class="modal-resize" id="timerPickerResize"></div>
       </div>
     </div>
 

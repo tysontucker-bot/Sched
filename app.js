@@ -71,6 +71,15 @@ const MEETING_URLS = {
   powerschool: "https://saisd.powerschool.com/teachers/home.html",
 };
 
+const TIMER_OPTIONS = [
+  { title: "Kitty Race",     url: "https://www.online-stopwatch.com/kitty-race-timer/full-screen/?countdown=00:10:00",  img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f431.svg" },
+  { title: "Puppy Dog Race", url: "https://www.online-stopwatch.com/puppy-dog-race/full-screen/?countdown=00:10:00",    img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f436.svg" },
+  { title: "Princess Race",  url: "https://www.online-stopwatch.com/princess-race/full-screen/?countdown=00:10:00",     img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f478.svg" },
+  { title: "Go-Kart Race",   url: "https://www.online-stopwatch.com/go-kart-race/full-screen/?countdown=00:10:00",      img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3ce.svg" },
+  { title: "Lorry Race",     url: "https://www.online-stopwatch.com/lorry-race/full-screen/?countdown=00:10:00",        img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f69a.svg" },
+  { title: "Motorbike Race", url: "https://www.online-stopwatch.com/motorbike-race/?countdown=00:10:00",                img: "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3cd.svg" },
+];
+
 // DOM
 const rowTop = document.getElementById("rowTop");
 const rowBottom = document.getElementById("rowBottom");
@@ -85,6 +94,7 @@ const currentRemaining = document.getElementById("currentRemaining");
 
 const btnVideos = document.getElementById("btnVideos");
 const btnMeetings = document.getElementById("btnMeetings");
+const btnWebsites = document.getElementById("btnWebsites");
 const btnSettings = document.getElementById("btnSettings");
 const btnReset = document.getElementById("btnReset");
 
@@ -103,6 +113,18 @@ const openMorningSlides = document.getElementById("openMorningSlides");
 const openAfternoonSlides = document.getElementById("openAfternoonSlides");
 const openPowerSchool = document.getElementById("openPowerSchool");
 const afternoonHint = document.getElementById("afternoonHint");
+
+const websitesOverlay = document.getElementById("websitesOverlay");
+const closeWebsites = document.getElementById("closeWebsites");
+const openWebPowerSchool = document.getElementById("openWebPowerSchool");
+const openClassroomTimer = document.getElementById("openClassroomTimer");
+
+const timerPickerOverlay = document.getElementById("timerPickerOverlay");
+const closeTimerPicker = document.getElementById("closeTimerPicker");
+const timerButtons = document.getElementById("timerButtons");
+const timerPickerResize = document.getElementById("timerPickerResize");
+const timerPickerModal = timerPickerOverlay.querySelector(".modal");
+setupModalResize(timerPickerModal, timerPickerResize);
 
 const editOverlay = document.getElementById("editOverlay");
 const closeEdit = document.getElementById("closeEdit");
@@ -176,6 +198,7 @@ setupCurrentBoxDrag();
 setupTimerResize();
 setupVideos();
 setupMeetings();
+setupWebsites();
 setupEditModal();
 
 // Details button: prevent drag start, open popup on click
@@ -210,6 +233,10 @@ btnMeetings.addEventListener("click", () => {
 });
 closeMeetings.addEventListener("click", () => closeOverlay(meetingsOverlay));
 meetingsOverlay.addEventListener("click", (e) => { if (e.target === meetingsOverlay) closeOverlay(meetingsOverlay); });
+
+btnWebsites.addEventListener("click", () => openOverlay(websitesOverlay));
+closeWebsites.addEventListener("click", () => closeOverlay(websitesOverlay));
+websitesOverlay.addEventListener("click", (e) => { if (e.target === websitesOverlay) closeOverlay(websitesOverlay); });
 
 /* ------------------ Rendering ------------------ */
 
@@ -1071,6 +1098,54 @@ function afternoonMeetingUrl(){
   // Mon/Wed/Fri => MW deck; Tue/Thu => TTh deck
   if (day === 2 || day === 4) return MEETING_URLS.afternoonTTh;
   return MEETING_URLS.afternoonMW;
+}
+
+/* ------------------ Websites ------------------ */
+
+function setupWebsites(){
+  openWebPowerSchool.addEventListener("click", () => {
+    closeOverlay(websitesOverlay);
+    openNewTab(MEETING_URLS.powerschool);
+  });
+
+  openClassroomTimer.addEventListener("click", () => {
+    closeOverlay(websitesOverlay);
+    buildTimerPicker();
+    openOverlay(timerPickerOverlay);
+  });
+
+  closeTimerPicker.addEventListener("click", () => closeOverlay(timerPickerOverlay));
+  timerPickerOverlay.addEventListener("click", (e) => {
+    if (e.target === timerPickerOverlay) closeOverlay(timerPickerOverlay);
+  });
+}
+
+function buildTimerPicker(){
+  if (timerButtons.childElementCount > 0) return; // already built
+
+  TIMER_OPTIONS.forEach(({ title, url, img }) => {
+    const btn = document.createElement("button");
+    btn.className = "timer-btn";
+    btn.setAttribute("aria-label", title);
+
+    const image = document.createElement("img");
+    image.className = "timer-btn-img";
+    image.src = img;
+    image.alt = title;
+
+    const label = document.createElement("span");
+    label.textContent = title;
+
+    btn.appendChild(image);
+    btn.appendChild(label);
+
+    btn.addEventListener("click", () => {
+      closeOverlay(timerPickerOverlay);
+      openNewTab(url);
+    });
+
+    timerButtons.appendChild(btn);
+  });
 }
 
 /* ------------------ Symbol search: local AAC symbol catalog ------------------ */
