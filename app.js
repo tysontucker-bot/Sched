@@ -14,6 +14,7 @@ const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
+const TIMER_COLOR = "#e53935";
 
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
@@ -177,9 +178,9 @@ function updateTimerDiskFrame() {
   const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
   const remaining = Math.max(0, 1 - elapsed / total);
   const elapsedDeg = (1 - remaining) * 360;
-  const remainingSec = Math.max(0, Math.ceil(total - elapsed));
+  const remainingSec = Math.max(0, total - elapsed);
   timerDisk.style.background =
-    `conic-gradient(from -90deg, transparent 0deg ${elapsedDeg}deg, #e53935 ${elapsedDeg}deg 360deg)`;
+    `conic-gradient(from -90deg, transparent 0deg ${elapsedDeg}deg, ${TIMER_COLOR} ${elapsedDeg}deg 360deg)`;
   timerCenterReadout.textContent = formatCountdownClock(remainingSec);
 }
 
@@ -442,7 +443,7 @@ function tickSchedule(){
       currentRemaining.textContent =
         `Starts in ${formatRemaining(minsUntil).replace(" remaining","")}`;
       timerDisk.style.background =
-        "conic-gradient(from -90deg, #e53935 0deg 360deg)";
+        `conic-gradient(from -90deg, ${TIMER_COLOR} 0deg 360deg)`;
       timerCenterReadout.textContent = formatCountdownClock(Math.max(0, startMin * 60 - nowTotalSec));
 
       // Before start: nowTotalSec < activeStartSec, so elapsed=0 and remaining=1 → full red disk
