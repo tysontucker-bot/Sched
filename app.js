@@ -2,7 +2,7 @@
    - Central Time clock (America/Chicago)
    - Split schedule rows (top 8, bottom remainder)
    - Active/upcoming/completed states
-   - Current activity box with time remaining + mask filling bottom->top
+   - Current activity box with time remaining + circular countdown fill
    - Edit mode: reorder drag/drop, edit time, delete, rename, change symbol via search
    - localStorage persistence + reset
    - Videos: modal + draggable floating YouTube frames
@@ -14,6 +14,7 @@ const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
+const TIMER_COLOR = "#e53935";
 
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
@@ -87,6 +88,7 @@ const currentTimeEl = document.getElementById("currentTime");
 
 const currentBox = document.getElementById("currentBox");
 const timerDisk = document.getElementById("timerDisk");
+const timerCenterReadout = document.getElementById("timerCenterReadout");
 const timerResize = document.getElementById("timerResize");
 const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
@@ -162,6 +164,7 @@ function setTimerState(activeStartSec, nextStartSec) {
 function clearTimerState() {
   timerState = null;
   timerDisk.style.background = "transparent";
+  timerCenterReadout.textContent = "--:--";
 }
 
 function updateTimerDiskFrame() {
@@ -174,9 +177,12 @@ function updateTimerDiskFrame() {
   const total = Math.max(1, nextStartSec - activeStartSec);
   const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
   const remaining = Math.max(0, 1 - elapsed / total);
-  const deg = remaining * 360;
+  const elapsedDeg = (1 - remaining) * 360;
+  const remainingSec = Math.max(0, nextStartSec - nowTotalSec);
+  // Start at -90deg so 0deg is visually at 12 o'clock, then sweep clockwise.
   timerDisk.style.background =
-    `conic-gradient(from 0deg, red 0deg ${deg}deg, transparent ${deg}deg 360deg)`;
+    `conic-gradient(from -90deg, transparent 0deg ${elapsedDeg}deg, ${TIMER_COLOR} ${elapsedDeg}deg 360deg)`;
+  timerCenterReadout.textContent = formatCountdownClock(remainingSec);
 }
 
 function startTimerRAF() {
@@ -423,6 +429,7 @@ function tickSchedule(){
   const endMin = timeToMinutes(ordered[ordered.length-1]?.time ?? "14:10");
 
   const nowMin = nowCT.hour*60 + nowCT.minute;
+  const nowTotalSec = nowMin * 60 + now.getSeconds();
 
   // Before start: show time until first activity
   if (nowMin < startMin){
@@ -436,10 +443,12 @@ function tickSchedule(){
       // show countdown text
       currentRemaining.textContent =
         `Starts in ${formatRemaining(minsUntil).replace(" remaining","")}`;
+      timerDisk.style.background =
+        `conic-gradient(from -90deg, ${TIMER_COLOR} 0deg 360deg)`;
+      timerCenterReadout.textContent = formatCountdownClock(Math.max(0, startMin * 60 - nowTotalSec));
 
-      // Before start: nowTotalSec < activeStartSec, so elapsed=0 and remaining=1 → full red disk
-      // Use a 1-min duration so the RAF calculation always yields remaining=1 until schedule begins
-      setTimerState(startMin * 60, (startMin + 1) * 60);
+      // Before schedule start, keep the disk fully filled and show a numeric countdown.
+      clearTimerState();
     } else {
       setCurrentDisplay(null, null);
     }
@@ -1817,6 +1826,14 @@ function formatRemaining(mins){
   const m = mins%60;
   if (m === 0) return `${h} hr remaining`;
   return `${h} hr ${m} min remaining`;
+}
+
+function formatCountdownClock(totalSeconds){
+  if (totalSeconds === null || totalSeconds === undefined) return "--:--";
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const min = Math.floor(safe / 60);
+  const sec = safe % 60;
+  return `${min}:${String(sec).padStart(2, "0")}`;
 }
 
 function formatCentralTime(date, twelveHour){

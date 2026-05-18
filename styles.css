@@ -224,6 +224,20 @@ body{
   z-index:1;
 }
 
+.timer-center-readout{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  font-weight:900;
+  font-size:max(20px, calc(var(--timer-size) * 0.16));
+  line-height:1;
+  color:#111;
+  text-shadow:0 2px 6px rgba(255,255,255,0.9);
+  z-index:4;
+  pointer-events:none;
+}
+
 .current-content{
   position:absolute;
   inset:0;
