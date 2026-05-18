@@ -177,11 +177,12 @@ function updateTimerDiskFrame() {
   const total = Math.max(1, nextStartSec - activeStartSec);
   const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
   const remaining = Math.max(0, 1 - elapsed / total);
-  const elapsedDeg = (1 - remaining) * 360;
+  const remainingDeg = remaining * 360;
   const remainingSec = Math.max(0, nextStartSec - nowTotalSec);
-  // Start at -90deg so 0deg is visually at 12 o'clock, then sweep clockwise.
+  // 0deg in conic-gradient is 12 o'clock; color fills from 12 o'clock clockwise
+  // for remainingDeg, then shrinks back as time elapses.
   timerDisk.style.background =
-    `conic-gradient(from -90deg, transparent 0deg ${elapsedDeg}deg, ${TIMER_COLOR} ${elapsedDeg}deg 360deg)`;
+    `conic-gradient(${TIMER_COLOR} 0deg ${remainingDeg}deg, transparent ${remainingDeg}deg 360deg)`;
   timerCenterReadout.textContent = formatCountdownClock(remainingSec);
 }
 
