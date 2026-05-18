@@ -1828,7 +1828,7 @@ function formatRemaining(mins){
 }
 
 function formatCountdownClock(totalSeconds){
-  if (totalSeconds == null) return "--:--";
+  if (totalSeconds === null || totalSeconds === undefined) return "--:--";
   const safe = Math.max(0, Math.floor(totalSeconds));
   const min = Math.floor(safe / 60);
   const sec = safe % 60;
