@@ -2,7 +2,7 @@
    - Central Time clock (America/Chicago)
    - Split schedule rows (top 8, bottom remainder)
    - Active/upcoming/completed states
-   - Current activity box with time remaining + mask filling bottom->top
+   - Current activity box with time remaining + circular countdown fill
    - Edit mode: reorder drag/drop, edit time, delete, rename, change symbol via search
    - localStorage persistence + reset
    - Videos: modal + draggable floating YouTube frames
@@ -178,7 +178,7 @@ function updateTimerDiskFrame() {
   const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
   const remaining = Math.max(0, 1 - elapsed / total);
   const elapsedDeg = (1 - remaining) * 360;
-  const remainingSec = Math.max(0, total - elapsed);
+  const remainingSec = Math.max(0, nextStartSec - nowTotalSec);
   timerDisk.style.background =
     `conic-gradient(from -90deg, transparent 0deg ${elapsedDeg}deg, ${TIMER_COLOR} ${elapsedDeg}deg 360deg)`;
   timerCenterReadout.textContent = formatCountdownClock(remainingSec);
@@ -446,8 +446,7 @@ function tickSchedule(){
         `conic-gradient(from -90deg, ${TIMER_COLOR} 0deg 360deg)`;
       timerCenterReadout.textContent = formatCountdownClock(Math.max(0, startMin * 60 - nowTotalSec));
 
-      // Before start: nowTotalSec < activeStartSec, so elapsed=0 and remaining=1 → full red disk
-      // Use a 1-min duration so the RAF calculation always yields remaining=1 until schedule begins
+      // Before schedule start, keep the disk fully filled and show a numeric countdown.
       clearTimerState();
     } else {
       setCurrentDisplay(null, null);
