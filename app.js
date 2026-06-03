@@ -1458,16 +1458,6 @@ const LOCAL_SYMBOL_CATALOG = [
   { label: "Reward",               url: MUL+"reward.svg",                                               tags: ["reward","prize","earn","token","reinforcement","good job"] },
   { label: "Star Chart",           url: MUL+"star chart.svg",                                           tags: ["star chart","star","reward","earn","chart","points","token"] },
 
-  /* ── Students / People ── */
-
-  // students
-  { label: "Audrina",              url: "./Audrina.png",                                                tags: ["audrina","student","person","friend","classmate","name"] },
-  { label: "Ayden",                url: "./Ayden.png",                                                  tags: ["ayden","student","person","friend","classmate","name"] },
-  { label: "Caleb",                url: "./Caleb.png",                                                  tags: ["caleb","student","person","friend","classmate","name"] },
-  { label: "Finnley",              url: "./Finnley.png",                                                tags: ["finnley","student","person","friend","classmate","name"] },
-  { label: "Jacob",                url: "./Jacob.png",                                                  tags: ["jacob","student","person","friend","classmate","name"] },
-  { label: "Jaxon",                url: "./Jaxon.png",                                                  tags: ["jaxon","student","person","friend","classmate","name"] },
-  { label: "Ronan",                url: "./Ronan.png",                                                  tags: ["ronan","student","person","friend","classmate","name"] },
 ];
 
 
