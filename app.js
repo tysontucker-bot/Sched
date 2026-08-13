@@ -1855,10 +1855,12 @@ function loadState(){
                   img.src = ENGLISH_UNIQUE_IMAGE_RENAMES.get(img.src);
                 }
               });
-              const existingSrcs = new Set(existingImages.map(img => img?.src).filter(Boolean));
-              const missingImages = ENGLISH_UNIQUE_IMAGES.filter(img => !existingSrcs.has(img.src));
+              const existingBySrc = new Map(existingImages.map(img => [img?.src, img]));
+              const orderedImages = ENGLISH_UNIQUE_IMAGES.map(img => existingBySrc.get(img.src) || structuredClone(img));
+              const defaultSrcs = new Set(ENGLISH_UNIQUE_IMAGES.map(img => img.src));
+              const extraImages = existingImages.filter(img => img?.src && !defaultSrcs.has(img.src));
               step.type = "images";
-              step.images = existingImages.concat(structuredClone(missingImages));
+              step.images = orderedImages.concat(extraImages);
             }
           });
         }
