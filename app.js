@@ -13,9 +13,25 @@ const STORAGE_KEY = "sched:v1";
 const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const MIGRATION_KEY_3 = "sched:migratedEnglishUnique:v1";
+const MIGRATION_KEY_4 = "sched:migratedEnglishUniqueScreenshots:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
+
+const ENGLISH_UNIQUE_IMAGES = [
+  { src:"./table1.png", caption:"Table 1" },
+  { src:"./table2.png", caption:"Table 2" },
+  { src:"./table3.png", caption:"Table 3" },
+  { src:"./screenshot-2026-08-12-233411.png", caption:"Screenshot 1" },
+  { src:"./screenshot-2026-08-12-233416.png", caption:"Screenshot 2" },
+  { src:"./screenshot-2026-08-12-233428.png", caption:"Screenshot 3" },
+];
+
+const ENGLISH_UNIQUE_IMAGE_RENAMES = new Map([
+  ["./Screenshot 2026-08-12 233411.png", "./screenshot-2026-08-12-233411.png"],
+  ["./Screenshot 2026-08-12 233416.png", "./screenshot-2026-08-12-233416.png"],
+  ["./Screenshot 2026-08-12 233428.png", "./screenshot-2026-08-12-233428.png"],
+]);
 
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
@@ -26,11 +42,7 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
   { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
-    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:[
-      { src:"./table1.png", caption:"Table 1" },
-      { src:"./table2.png", caption:"Table 2" },
-      { src:"./table3.png", caption:"Table 3" },
-    ], completed:false },
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:structuredClone(ENGLISH_UNIQUE_IMAGES), completed:false },
   ] },
   { id: uid(), name:"Attendance", time:"8:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
   { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
@@ -1823,17 +1835,38 @@ function loadState(){
           const hasUnique = a.steps.some(s => s.label === "Unique");
           if (!hasUnique){
             a.steps = [
-              { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:[
-                { src:"./table1.png", caption:"Table 1" },
-                { src:"./table2.png", caption:"Table 2" },
-                { src:"./table3.png", caption:"Table 3" },
-              ], completed:false },
+              { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:structuredClone(ENGLISH_UNIQUE_IMAGES), completed:false },
             ];
           }
         }
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_3, "1");
+    }
+    if (!localStorage.getItem(MIGRATION_KEY_4)){
+      // Add newly bundled screenshot assets to the English Unique image set
+      saved.activities.forEach(a => {
+        if (a.name === "English" && Array.isArray(a.steps)){
+          a.steps.forEach(step => {
+            if (step.label === "Unique"){
+              const existingImages = Array.isArray(step.images) ? step.images : [];
+              existingImages.forEach(img => {
+                if (img && ENGLISH_UNIQUE_IMAGE_RENAMES.has(img.src)){
+                  img.src = ENGLISH_UNIQUE_IMAGE_RENAMES.get(img.src);
+                }
+              });
+              const existingBySrc = new Map(existingImages.map(img => [img?.src, img]));
+              const orderedImages = ENGLISH_UNIQUE_IMAGES.map(img => existingBySrc.get(img.src) || structuredClone(img));
+              const defaultSrcs = new Set(ENGLISH_UNIQUE_IMAGES.map(img => img.src));
+              const extraImages = existingImages.filter(img => img?.src && !defaultSrcs.has(img.src));
+              step.type = "images";
+              step.images = orderedImages.concat(extraImages);
+            }
+          });
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY_4, "1");
     }
     return saved;
   }
