@@ -22,10 +22,16 @@ const ENGLISH_UNIQUE_IMAGES = [
   { src:"./table1.png", caption:"Table 1" },
   { src:"./table2.png", caption:"Table 2" },
   { src:"./table3.png", caption:"Table 3" },
-  { src:"./Screenshot 2026-08-12 233411.png", caption:"Screenshot 1" },
-  { src:"./Screenshot 2026-08-12 233416.png", caption:"Screenshot 2" },
-  { src:"./Screenshot 2026-08-12 233428.png", caption:"Screenshot 3" },
+  { src:"./screenshot-2026-08-12-233411.png", caption:"Screenshot 1" },
+  { src:"./screenshot-2026-08-12-233416.png", caption:"Screenshot 2" },
+  { src:"./screenshot-2026-08-12-233428.png", caption:"Screenshot 3" },
 ];
+
+const ENGLISH_UNIQUE_IMAGE_RENAMES = new Map([
+  ["./Screenshot 2026-08-12 233411.png", "./screenshot-2026-08-12-233411.png"],
+  ["./Screenshot 2026-08-12 233416.png", "./screenshot-2026-08-12-233416.png"],
+  ["./Screenshot 2026-08-12 233428.png", "./screenshot-2026-08-12-233428.png"],
+]);
 
 const DEFAULT_ACTIVITIES = [
   { id: uid(), name:"Breakfast", time:"7:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6256/14_6256_4ab7e0f6-4376-4c6d-8664-55cb0d0c2c2d.svg" },
@@ -1844,6 +1850,11 @@ function loadState(){
           a.steps.forEach(step => {
             if (step.label === "Unique"){
               const existingImages = Array.isArray(step.images) ? step.images : [];
+              existingImages.forEach(img => {
+                if (img && ENGLISH_UNIQUE_IMAGE_RENAMES.has(img.src)){
+                  img.src = ENGLISH_UNIQUE_IMAGE_RENAMES.get(img.src);
+                }
+              });
               const existingSrcs = new Set(existingImages.map(img => img?.src).filter(Boolean));
               const missingImages = ENGLISH_UNIQUE_IMAGES.filter(img => !existingSrcs.has(img.src));
               step.type = "images";
