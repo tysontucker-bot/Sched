@@ -12,6 +12,7 @@
 const STORAGE_KEY = "sched:v1";
 const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
+const MIGRATION_KEY_3 = "sched:migratedEnglishUbnique:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
@@ -25,9 +26,11 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
   { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
-    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Vocabulary", url:"./Vehicles.mp4", completed:false },
-    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png", label:"Worksheet", completed:false },
-    { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg", label:"Folder", completed:false },
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Ubnique", type:"images", images:[
+      { src:"./table1.png", caption:"Table 1" },
+      { src:"./table2.png", caption:"Table 2" },
+      { src:"./table3.png", caption:"Table 3" },
+    ], completed:false },
   ] },
   { id: uid(), name:"Attendance", time:"8:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
   { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
@@ -758,6 +761,72 @@ function openLocalVideoFloat(title, url){
 }
 
 
+function openImagesFloat(title, images){
+  const frame = document.createElement("div");
+  frame.className = "float";
+  frame.style.left = "60px";
+  frame.style.top = "120px";
+  frame.style.width = "480px";
+
+  const header = document.createElement("div");
+  header.className = "float-header";
+
+  const t = document.createElement("div");
+  t.className = "float-title";
+  t.textContent = title;
+
+  const close = document.createElement("button");
+  close.className = "float-close";
+  close.textContent = "✕";
+  close.addEventListener("click", () => frame.remove());
+
+  header.appendChild(t);
+  header.appendChild(close);
+
+  const body = document.createElement("div");
+  body.className = "float-body";
+  body.style.display = "flex";
+  body.style.flexWrap = "wrap";
+  body.style.gap = "12px";
+  body.style.padding = "12px";
+  body.style.justifyContent = "center";
+  body.style.overflowY = "auto";
+
+  images.forEach(({ src, caption }) => {
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.flexDirection = "column";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "6px";
+
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = caption;
+    img.style.width = "130px";
+    img.style.height = "130px";
+    img.style.objectFit = "contain";
+    img.style.borderRadius = "8px";
+    img.style.background = "#fff";
+
+    const lbl = document.createElement("div");
+    lbl.textContent = caption;
+    lbl.style.fontSize = "14px";
+    lbl.style.fontWeight = "700";
+    lbl.style.color = "#fff";
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(lbl);
+    body.appendChild(wrapper);
+  });
+
+  frame.appendChild(header);
+  frame.appendChild(body);
+  floatLayer.appendChild(frame);
+
+  dragWithinBoard(frame, header);
+}
+
+
 function dragWithinBoard(frame, handle){
   let dragging = false;
   let startX = 0, startY = 0;
@@ -884,6 +953,12 @@ function renderDetailsWindow(activity){
       row.addEventListener("click", (e) => {
         if (e.target === checkbox) return;
         openLocalVideoFloat(step.label, step.url);
+      });
+    } else if (step.type === "images" && Array.isArray(step.images)) {
+      row.classList.add("details-step-link");
+      row.addEventListener("click", (e) => {
+        if (e.target === checkbox) return;
+        openImagesFloat(step.label, step.images);
       });
     }
 
@@ -1740,6 +1815,25 @@ function loadState(){
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_2, "1");
+    }
+    if (!localStorage.getItem(MIGRATION_KEY_3)){
+      // Replace old English steps (Vocabulary/Worksheet/Folder) with the single Ubnique step
+      saved.activities.forEach(a => {
+        if (a.name === "English" && Array.isArray(a.steps)){
+          const hasUbnique = a.steps.some(s => s.label === "Ubnique");
+          if (!hasUbnique){
+            a.steps = [
+              { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Ubnique", type:"images", images:[
+                { src:"./table1.png", caption:"Table 1" },
+                { src:"./table2.png", caption:"Table 2" },
+                { src:"./table3.png", caption:"Table 3" },
+              ], completed:false },
+            ];
+          }
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY_3, "1");
     }
     return saved;
   }
