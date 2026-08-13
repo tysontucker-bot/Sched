@@ -12,7 +12,7 @@
 const STORAGE_KEY = "sched:v1";
 const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
-const MIGRATION_KEY_3 = "sched:migratedEnglishUbnique:v1";
+const MIGRATION_KEY_3 = "sched:migratedEnglishUnique:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
@@ -26,7 +26,7 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
   { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
-    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Ubnique", type:"images", images:[
+    { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:[
       { src:"./table1.png", caption:"Table 1" },
       { src:"./table2.png", caption:"Table 2" },
       { src:"./table3.png", caption:"Table 3" },
@@ -1817,13 +1817,13 @@ function loadState(){
       localStorage.setItem(MIGRATION_KEY_2, "1");
     }
     if (!localStorage.getItem(MIGRATION_KEY_3)){
-      // Replace old English steps (Vocabulary/Worksheet/Folder) with the single Ubnique step
+      // Replace old English steps (Vocabulary/Worksheet/Folder) with the single Unique step
       saved.activities.forEach(a => {
         if (a.name === "English" && Array.isArray(a.steps)){
-          const hasUbnique = a.steps.some(s => s.label === "Ubnique");
-          if (!hasUbnique){
+          const hasUnique = a.steps.some(s => s.label === "Unique");
+          if (!hasUnique){
             a.steps = [
-              { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Ubnique", type:"images", images:[
+              { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:[
                 { src:"./table1.png", caption:"Table 1" },
                 { src:"./table2.png", caption:"Table 2" },
                 { src:"./table3.png", caption:"Table 3" },
