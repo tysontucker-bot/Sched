@@ -64,7 +64,7 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg", label:"Clean up tray", completed:false },
   ] },
   { id: uid(), name:"Swing", time:"12:00", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
-  { id: uid(), name:"Drink Water", time:"12:30", icon:"./drink.png" },
+  { id: uid(), name:"Drink Water", time:"12:30", icon:"./DrinkWater.png" },
   { id: uid(), name:"Rest", time:"12:35", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Desk Work", time:"13:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
   { id: uid(), name:"Afternoon Meeting", time:"13:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
@@ -1990,7 +1990,7 @@ function loadState(){
       const hasDrinkWater = saved.activities.some(a => a.name === "Drink Water");
       if (!hasDrinkWater){
         const swingIdx = saved.activities.findIndex(a => a.name === "Swing" && a.time === "12:00");
-        const drinkWater = { id: uid(), name:"Drink Water", time:"12:30", icon:"./drink.png" };
+        const drinkWater = { id: uid(), name:"Drink Water", time:"12:30", icon:"./DrinkWater.png" };
         if (swingIdx !== -1){
           saved.activities.splice(swingIdx + 1, 0, drinkWater);
         } else {
