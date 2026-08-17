@@ -14,6 +14,7 @@ const MIGRATION_KEY = "sched:migratedTo24h:v1";
 const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const MIGRATION_KEY_3 = "sched:migratedEnglishUnique:v1";
 const MIGRATION_KEY_4 = "sched:migratedEnglishUniqueScreenshots:v1";
+const MIGRATION_KEY_5 = "sched:migratedMorningAfternoonSchedule:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
@@ -41,11 +42,12 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png", label:"Morning greeting", completed:false },
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Review the schedule", completed:false },
   ] },
-  { id: uid(), name:"English", time:"8:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
+  { id: uid(), name:"Swing", time:"8:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
+  { id: uid(), name:"English", time:"8:50", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", steps:[
     { icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/english.svg", label:"Unique", type:"images", images:structuredClone(ENGLISH_UNIQUE_IMAGES), completed:false },
   ] },
-  { id: uid(), name:"Attendance", time:"8:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
-  { id: uid(), name:"Recess", time:"8:55", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
+  { id: uid(), name:"Attendance", time:"9:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3120/13_3120_590a8d73-a9f5-49f6-9f26-9e1befbb2898.svg" },
+  { id: uid(), name:"Recess", time:"9:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15894/17_15895_8fbcb320-e261-4ebc-8834-8aeb58e5b03c.png" },
   { id: uid(), name:"Break", time:"9:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Snack", time:"9:50", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21820/17_21821_f58239d7-c408-4494-b7e7-d2808ddf08fa.png" },
   { id: uid(), name:"Math", time:"10:05", icon:"https://globalsymbols.com/uploads/production/image/imagefile/55337/120_55338_d6018f6e-ea20-43e6-9f4b-68e33fc67fc9.png", steps:[
@@ -62,7 +64,8 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg", label:"Clean up tray", completed:false },
   ] },
   { id: uid(), name:"Swing", time:"12:00", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
-  { id: uid(), name:"Rest", time:"12:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
+  { id: uid(), name:"Drink Water", time:"12:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/drink water.svg" },
+  { id: uid(), name:"Rest", time:"12:35", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Desk Work", time:"13:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
   { id: uid(), name:"Afternoon Meeting", time:"13:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
   { id: uid(), name:"Television", time:"13:45", icon:"https://globalsymbols.com/uploads/production/image/imagefile/6268/14_6268_8b0276ac-2f63-4972-81bc-601383681b04.svg" },
@@ -1986,6 +1989,38 @@ function loadState(){
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_4, "1");
+    }
+    if (!localStorage.getItem(MIGRATION_KEY_5)){
+      // Update morning times: add Swing at 8:30, shift English→8:50, Attendance→9:10, Recess→9:15
+      // Remove any pre-existing morning Swing entries (before noon) to avoid duplicates
+      saved.activities = saved.activities.filter(a => !(a.name === "Swing" && a.time < "12:00"));
+      saved.activities.forEach(a => {
+        if (a.name === "English" && a.time === "8:30") a.time = "8:50";
+        if (a.name === "Attendance" && a.time === "8:50") a.time = "9:10";
+        if (a.name === "Recess" && a.time === "8:55") a.time = "9:15";
+      });
+      // Insert morning Swing at 8:30 after Morning Meeting
+      const mmIdx = saved.activities.findIndex(a => a.name === "Morning Meeting");
+      const morningSwing = { id: uid(), name:"Swing", time:"8:30", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" };
+      if (mmIdx !== -1){
+        saved.activities.splice(mmIdx + 1, 0, morningSwing);
+      }
+      // Add Drink Water at 12:30 and shift Rest to 12:35
+      saved.activities.forEach(a => {
+        if (a.name === "Rest" && a.time === "12:30") a.time = "12:35";
+      });
+      const hasDrinkWater = saved.activities.some(a => a.name === "Drink Water");
+      if (!hasDrinkWater){
+        const swingIdx = saved.activities.findIndex(a => a.name === "Swing" && a.time === "12:00");
+        const drinkWater = { id: uid(), name:"Drink Water", time:"12:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/drink water.svg" };
+        if (swingIdx !== -1){
+          saved.activities.splice(swingIdx + 1, 0, drinkWater);
+        } else {
+          saved.activities.push(drinkWater);
+        }
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY_5, "1");
     }
     return saved;
   }
