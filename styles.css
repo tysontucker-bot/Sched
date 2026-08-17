@@ -106,14 +106,18 @@ body{
   position:absolute;
   inset:0;
   padding: 86px 14px 14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   overflow-y: auto;
 }
 
 .schedule-grid{
   display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap:12px;
-  align-content:start;
+  grid-template-columns: repeat(10, 1fr);
+  gap:8px;
+  width:100%;
+  max-width:1892px;
 }
 .card{
   position:relative;
@@ -224,7 +228,7 @@ body{
   --timer-size: 350px;
   position:fixed;
   left: calc(50% - var(--timer-size) / 2);
-  top: calc(50% - var(--timer-size) / 2);
+  top: 390px;
   width: var(--timer-size);
   height: var(--timer-size);
   background:#e8e8e8;
