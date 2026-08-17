@@ -109,6 +109,7 @@ const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
 const currentRemaining = document.getElementById("currentRemaining");
 
+const btnCoreBoard = document.getElementById("btnCoreBoard");
 const btnVideos = document.getElementById("btnVideos");
 const btnMeetings = document.getElementById("btnMeetings");
 const btnWebsites = document.getElementById("btnWebsites");
@@ -244,6 +245,8 @@ btnReset.addEventListener("click", () => {
   saveState();
   render();
 });
+
+btnCoreBoard.addEventListener("click", () => openCoreBoardFloat());
 
 btnVideos.addEventListener("click", () => openOverlay(videosOverlay));
 closeVideos.addEventListener("click", () => closeOverlay(videosOverlay));
@@ -838,6 +841,103 @@ function openImagesFloat(title, images){
   dragWithinBoard(frame, header);
 }
 
+
+function openCoreBoardFloat(){
+  const frame = document.createElement("div");
+  frame.className = "float";
+  frame.style.left = "60px";
+  frame.style.top = "120px";
+  frame.style.width = "480px";
+
+  const header = document.createElement("div");
+  header.className = "float-header";
+
+  const t = document.createElement("div");
+  t.className = "float-title";
+  t.textContent = "Core Boards";
+
+  const close = document.createElement("button");
+  close.className = "float-close";
+  close.textContent = "✕";
+  close.addEventListener("click", () => frame.remove());
+
+  header.appendChild(t);
+  header.appendChild(close);
+
+  const body = document.createElement("div");
+  body.className = "float-body";
+  body.style.background = "#000";
+  body.style.display = "flex";
+  body.style.alignItems = "center";
+  body.style.justifyContent = "center";
+  body.style.overflow = "hidden";
+
+  const img = document.createElement("img");
+  img.src = "./Core Boards.jpg";
+  img.alt = "Core Boards";
+  img.style.width = "100%";
+  img.style.height = "100%";
+  img.style.objectFit = "contain";
+
+  body.appendChild(img);
+  frame.appendChild(header);
+  frame.appendChild(body);
+
+  const resize = document.createElement("div");
+  resize.className = "float-resize";
+  frame.appendChild(resize);
+
+  floatLayer.appendChild(frame);
+
+  // Set initial height based on image natural dimensions once loaded
+  img.addEventListener("load", () => {
+    const aspect = img.naturalWidth / img.naturalHeight;
+    const w = frame.offsetWidth;
+    const headerH = header.offsetHeight || 44;
+    frame.style.height = `${Math.round(w / aspect) + headerH}px`;
+  }, { once: true });
+
+  setupFreeResize(frame, resize);
+  dragWithinBoard(frame, header);
+}
+
+function setupFreeResize(frame, handle){
+  const PAD = 8;
+  const MIN_W = 200;
+  const MIN_H = 150;
+
+  let resizing = false;
+  let startX = 0, startY = 0;
+  let startW = 0, startH = 0;
+
+  handle.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizing = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const r = frame.getBoundingClientRect();
+    startW = r.width;
+    startH = r.height;
+    handle.setPointerCapture(e.pointerId);
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!resizing) return;
+    const maxW = window.innerWidth - PAD * 2;
+    const maxH = window.innerHeight - PAD * 2;
+    const w = clamp(startW + (e.clientX - startX), MIN_W, maxW);
+    const h = clamp(startH + (e.clientY - startY), MIN_H, maxH);
+    frame.style.width = `${w}px`;
+    frame.style.height = `${h}px`;
+    const r = frame.getBoundingClientRect();
+    frame.style.left = `${clamp(r.left, PAD, window.innerWidth - w - PAD)}px`;
+    frame.style.top  = `${clamp(r.top,  PAD, window.innerHeight - h - PAD)}px`;
+  });
+
+  handle.addEventListener("pointerup", () => { resizing = false; });
+  handle.addEventListener("pointercancel", () => { resizing = false; });
+}
 
 function dragWithinBoard(frame, handle){
   let dragging = false;
