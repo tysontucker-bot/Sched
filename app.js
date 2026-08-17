@@ -64,7 +64,7 @@ const DEFAULT_ACTIVITIES = [
     { icon:"https://globalsymbols.com/uploads/production/image/imagefile/3426/13_3426_bf2a3b9e-4973-466b-9c31-46e35e0b1d17.svg", label:"Clean up tray", completed:false },
   ] },
   { id: uid(), name:"Swing", time:"12:00", icon:"https://globalsymbols.com/uploads/production/image/imagefile/46310/17_46311_4d68b6dc-e99c-462a-875f-c76297d2e2a8.png" },
-  { id: uid(), name:"Drink Water", time:"12:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/drink water.svg" },
+  { id: uid(), name:"Drink Water", time:"12:30", icon:"./drink.png" },
   { id: uid(), name:"Rest", time:"12:35", icon:"https://globalsymbols.com/uploads/production/image/imagefile/3260/13_3260_8cd0ea5c-3d75-49bd-836a-526966edf6e6.svg" },
   { id: uid(), name:"Desk Work", time:"13:10", icon:"https://globalsymbols.com/uploads/production/image/imagefile/15657/17_15658_197b592f-bf8e-4879-b9b4-960bdaa27018.png" },
   { id: uid(), name:"Afternoon Meeting", time:"13:15", icon:"https://globalsymbols.com/uploads/production/image/imagefile/21487/17_21488_2252fa6e-4757-45be-b905-4760804fa3d5.png" },
@@ -100,8 +100,7 @@ const TIMER_OPTIONS = [
 ];
 
 // DOM
-const rowTop = document.getElementById("rowTop");
-const rowBottom = document.getElementById("rowBottom");
+const scheduleGrid = document.getElementById("scheduleGrid");
 const currentTimeEl = document.getElementById("currentTime");
 
 const currentBox = document.getElementById("currentBox");
@@ -288,15 +287,9 @@ websitesOverlay.addEventListener("click", (e) => { if (e.target === websitesOver
 /* ------------------ Rendering ------------------ */
 
 function render(){
-  rowTop.innerHTML = "";
-  rowBottom.innerHTML = "";
+  scheduleGrid.innerHTML = "";
 
-  const activities = state.activities;
-  const top = activities.slice(0, 9);
-  const bottom = activities.slice(9);
-
-  top.forEach(a => rowTop.appendChild(renderCard(a)));
-  bottom.forEach(a => rowBottom.appendChild(renderCard(a)));
+  state.activities.forEach(a => scheduleGrid.appendChild(renderCard(a)));
 
   tickSchedule();
 }
@@ -390,63 +383,47 @@ function renderCard(a){
     card.addEventListener("dragend", () => card.classList.remove("dragging"));
   }
 
-  // Allow drops into rows
-  rowTop.ondragover = rowBottom.ondragover = (e) => { if (editMode) e.preventDefault(); };
-  rowTop.ondrop = rowBottom.ondrop = (e) => {
+  // Allow drops into the schedule grid
+  scheduleGrid.ondragover = (e) => { if (editMode) e.preventDefault(); };
+  scheduleGrid.ondrop = (e) => {
     if (!editMode) return;
     e.preventDefault();
     const id = e.dataTransfer.getData("text/plain");
-    const targetRow = (e.currentTarget === rowTop) ? "top" : "bottom";
-    reorderByDrop(id, targetRow, e.clientX, e.clientY);
+    reorderByDrop(id, e.clientX, e.clientY);
   };
 
   return card;
 }
 
-function reorderByDrop(id, targetRow, clientX, clientY){
+function reorderByDrop(id, clientX, clientY){
   const all = [...state.activities];
   const dragged = all.find(a => a.id === id);
   if (!dragged) return;
 
   const without = all.filter(a => a.id !== id);
-
-  const rowEl = targetRow === "top" ? rowTop : rowBottom;
-  const cards = [...rowEl.querySelectorAll(".card")].filter(c => c.dataset.id !== id);
+  const cards = [...scheduleGrid.querySelectorAll(".card")].filter(c => c.dataset.id !== id);
 
   let insertBeforeId = null;
   for (const c of cards){
     const r = c.getBoundingClientRect();
     const midX = r.left + r.width/2;
     const midY = r.top + r.height/2;
-    // crude: compare by x then y; good enough for grid
     if (clientY < midY || (Math.abs(clientY-midY) < r.height/2 && clientX < midX)){
       insertBeforeId = c.dataset.id;
       break;
     }
   }
 
-      const topIds = without.slice(0, 9).map(x => x.id);
-      const bottomIds = without.slice(9).map(x => x.id);
-
-
-  const rowListIds = (targetRow === "top" ? topIds : bottomIds).slice();
-
-  let idxInRow = rowListIds.length;
+  const ids = without.map(x => x.id);
+  let insertIdx = ids.length;
   if (insertBeforeId){
-    idxInRow = rowListIds.indexOf(insertBeforeId);
-    if (idxInRow < 0) idxInRow = rowListIds.length;
+    const idx = ids.indexOf(insertBeforeId);
+    if (idx >= 0) insertIdx = idx;
   }
-  rowListIds.splice(idxInRow, 0, id);
-
-  const otherRowIds = targetRow === "top" ? bottomIds : topIds;
-  const mergedIds = targetRow === "top"
-    ? rowListIds.concat(otherRowIds)
-    : otherRowIds.concat(rowListIds);
+  ids.splice(insertIdx, 0, id);
 
   const dict = new Map(all.map(x => [x.id, x]));
-  dict.set(id, dragged);
-
-  state.activities = mergedIds.map(xid => dict.get(xid)).filter(Boolean);
+  state.activities = ids.map(xid => dict.get(xid)).filter(Boolean);
   saveState();
   render();
 }
@@ -2013,7 +1990,7 @@ function loadState(){
       const hasDrinkWater = saved.activities.some(a => a.name === "Drink Water");
       if (!hasDrinkWater){
         const swingIdx = saved.activities.findIndex(a => a.name === "Swing" && a.time === "12:00");
-        const drinkWater = { id: uid(), name:"Drink Water", time:"12:30", icon:"https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/drink water.svg" };
+        const drinkWater = { id: uid(), name:"Drink Water", time:"12:30", icon:"./drink.png" };
         if (swingIdx !== -1){
           saved.activities.splice(swingIdx + 1, 0, drinkWater);
         } else {
