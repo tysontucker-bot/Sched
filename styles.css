@@ -72,6 +72,36 @@ body{
 .btn-yellow{ background: var(--yellow); }
 .btn-danger{ background: var(--danger); }
 
+.tools-menu{
+  position: relative;
+}
+.tools-dropdown{
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: rgba(255,255,255,0.95);
+  border: 3px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  z-index: 100;
+  overflow: hidden;
+}
+.tools-item{
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 100ms;
+}
+.tools-item:hover{ background: rgba(0,0,0,0.08); }
+.tools-item + .tools-item{ border-top: 2px solid var(--border); }
+
 .layout{ position:absolute; inset:0; padding-top:80px; }
 
 .rows{
