@@ -113,7 +113,7 @@ body{
 
 .schedule-grid{
   display:grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   grid-template-rows: repeat(2, auto);
   align-content: space-between;
   gap:8px;
