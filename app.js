@@ -1993,7 +1993,8 @@ function loadState(){
     if (!localStorage.getItem(MIGRATION_KEY_5)){
       // Update morning times: add Swing at 8:30, shift English→8:50, Attendance→9:10, Recess→9:15
       // Remove any pre-existing morning Swing entries (before noon) to avoid duplicates
-      saved.activities = saved.activities.filter(a => !(a.name === "Swing" && a.time < "12:00"));
+      const toMins = t => { const [h,m] = String(t||"").split(":").map(Number); return h*60+(m||0); };
+      saved.activities = saved.activities.filter(a => !(a.name === "Swing" && toMins(a.time) < 720));
       saved.activities.forEach(a => {
         if (a.name === "English" && a.time === "8:30") a.time = "8:50";
         if (a.name === "Attendance" && a.time === "8:50") a.time = "9:10";
