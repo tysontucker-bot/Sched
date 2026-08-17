@@ -109,7 +109,10 @@ const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
 const currentRemaining = document.getElementById("currentRemaining");
 
-const btnCoreBoard = document.getElementById("btnCoreBoard");
+const btnTools = document.getElementById("btnTools");
+const toolsDropdown = document.getElementById("toolsDropdown");
+const toolsCoreBoard = document.getElementById("toolsCoreBoard");
+const toolsWhosHere = document.getElementById("toolsWhosHere");
 const btnVideos = document.getElementById("btnVideos");
 const btnMeetings = document.getElementById("btnMeetings");
 const btnWebsites = document.getElementById("btnWebsites");
@@ -246,7 +249,23 @@ btnReset.addEventListener("click", () => {
   render();
 });
 
-btnCoreBoard.addEventListener("click", () => openCoreBoardFloat());
+btnTools.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toolsDropdown.classList.toggle("hidden");
+});
+toolsCoreBoard.addEventListener("click", () => {
+  toolsDropdown.classList.add("hidden");
+  openCoreBoardFloat();
+});
+toolsWhosHere.addEventListener("click", () => {
+  toolsDropdown.classList.add("hidden");
+  window.open("https://canva.link/who-is-here", "_blank");
+});
+document.addEventListener("click", (e) => {
+  if (!document.getElementById("toolsMenu").contains(e.target)) {
+    toolsDropdown.classList.add("hidden");
+  }
+});
 
 btnVideos.addEventListener("click", () => openOverlay(videosOverlay));
 closeVideos.addEventListener("click", () => closeOverlay(videosOverlay));

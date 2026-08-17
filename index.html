@@ -17,7 +17,13 @@
       <div class="time" id="currentTime">--:-- --</div>
 
       <div class="topbar-actions">
-        <button class="btn" id="btnCoreBoard">Core Board</button>
+        <div class="tools-menu" id="toolsMenu">
+          <button class="btn" id="btnTools">Tools ▾</button>
+          <div class="tools-dropdown hidden" id="toolsDropdown">
+            <button class="tools-item" id="toolsCoreBoard">Core Board</button>
+            <button class="tools-item" id="toolsWhosHere">Who's here</button>
+          </div>
+        </div>
         <button class="btn" id="btnVideos">Videos</button>
         <button class="btn" id="btnMeetings">Meetings</button>
         <button class="btn" id="btnWebsites">Websites</button>
