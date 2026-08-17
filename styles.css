@@ -105,19 +105,22 @@ body{
 .layout{
   position:absolute;
   inset:0;
-  padding: 86px 14px 14px;
+  padding: 92px 14px 14px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  overflow-y: auto;
+  overflow:hidden;
 }
 
 .schedule-grid{
   display:grid;
   grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(2, auto);
+  align-content: space-between;
   gap:8px;
   width:100%;
   max-width:1892px;
+  height:100%;
 }
 .card{
   position:relative;
@@ -131,7 +134,7 @@ body{
   user-select:none;
   cursor:default;
   transition: transform 120ms ease, background 120ms ease;
-  min-height:120px;
+  min-height:170px;
 }
 .card:hover{ transform: scale(1.02); }
 
