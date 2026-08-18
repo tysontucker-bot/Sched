@@ -2002,10 +2002,14 @@ function loadState(){
       localStorage.setItem(MIGRATION_KEY_5, "1");
     }
     if (!localStorage.getItem(MIGRATION_KEY_6)){
+      let changed = false;
       saved.activities.forEach(a => {
-        if (a.name === "Drink Water" && a.icon !== "./drink.png") a.icon = "./drink.png";
+        if (a.name === "Drink Water" && a.icon !== "./drink.png"){
+          a.icon = "./drink.png";
+          changed = true;
+        }
       });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_6, "1");
     }
     return saved;
