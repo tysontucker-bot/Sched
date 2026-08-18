@@ -15,6 +15,7 @@ const MIGRATION_KEY_2 = "sched:migratedEnglishUrl:v1";
 const MIGRATION_KEY_3 = "sched:migratedEnglishUnique:v1";
 const MIGRATION_KEY_4 = "sched:migratedEnglishUniqueScreenshots:v1";
 const MIGRATION_KEY_5 = "sched:migratedMorningAfternoonSchedule:v1";
+const MIGRATION_KEY_6 = "sched:migratedDrinkWaterIcon:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
@@ -1999,6 +2000,13 @@ function loadState(){
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_5, "1");
+    }
+    if (!localStorage.getItem(MIGRATION_KEY_6)){
+      saved.activities.forEach(a => {
+        if (a.name === "Drink Water" && a.icon !== "./drink.png") a.icon = "./drink.png";
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      localStorage.setItem(MIGRATION_KEY_6, "1");
     }
     return saved;
   }
