@@ -77,11 +77,23 @@ const VIDEOS = [
   { title:"Roller Coaster",id:"-5ajUAyLUOg",  img:"https://img.youtube.com/vi/-5ajUAyLUOg/mqdefault.jpg" },
   { title:"Snack",         id:"i_JQwhPKzdI",  img:"https://img.youtube.com/vi/i_JQwhPKzdI/mqdefault.jpg" },
   { title:"Lunch",         id:"JegZYWlaq8w",  img:"https://img.youtube.com/vi/JegZYWlaq8w/mqdefault.jpg" },
-  { title:"Break",         id:"o_YV7lSEbO0",  img:"https://github.com/user-attachments/assets/5698bc7b-bb5a-48be-8281-bd98b0e705a9" },
   { title:"Afternoon",     id:"eji41cH7R54",  img:"https://img.youtube.com/vi/eji41cH7R54/mqdefault.jpg" },
   { title:"Animals",       id:"ecVQvgnKDug",  img:"https://img.youtube.com/vi/ecVQvgnKDug/mqdefault.jpg" },
   { title:"Numberblocks",  id:"GnVLJowv6eU",  img:"https://img.youtube.com/vi/GnVLJowv6eU/mqdefault.jpg" },
 ];
+const SENSORY_PLAYLIST_ID = "PLNT83Pmw8EuLtQwswYKpNIaaSagVLFhm-";
+const HOLIDAY_VIDEO_RULES = [
+  // Month-based guardrails are intentionally simple: allow only during the listed month(s).
+  { months: [1], keywords: ["new year", "new years"] },
+  { months: [2], keywords: ["valentine", "valentines"] },
+  { months: [3], keywords: ["st patrick", "saint patrick", "st. patrick"] },
+  { months: [3, 4], keywords: ["easter"] },
+  { months: [7], keywords: ["fourth of july", "4th of july"] },
+  { months: [10], keywords: ["halloween", "spooky"] },
+  { months: [11], keywords: ["thanksgiving", "turkey day"] },
+  { months: [12], keywords: ["christmas", "xmas", "santa", "reindeer", "hanukkah", "kwanzaa", "holiday"] },
+];
+let ytIframeApiPromise = null;
 
 const MEETING_URLS = {
   morning: "https://docs.google.com/presentation/d/1ehGBSHcag-uoCxJVIuGAsHY7kQ3AVrHTxWZ3AJjC_W8/edit?slide=id.ge9e5be468d_2_0#slide=id.ge9e5be468d_2_0",
@@ -666,21 +678,200 @@ function moveWithinBoard(el, left, top){
 function setupVideos(){
   videoButtons.innerHTML = "";
   VIDEOS.forEach(v => {
-    const b = document.createElement("button");
-    b.className = "btn btn-yellow video-btn";
-    if (v.img) {
-      const img = document.createElement("img");
-      img.src = v.img;
-      img.alt = v.title;
-      img.className = "video-btn-thumb";
-      b.appendChild(img);
-    }
-    const label = document.createElement("span");
-    label.textContent = v.title;
-    b.appendChild(label);
-    b.addEventListener("click", () => openVideoFloat(v.title, v.id));
+    const b = createVideoButton(v.title, v.img, () => openVideoFloat(v.title, v.id));
     videoButtons.appendChild(b);
   });
+
+  const sensoryBtn = createVideoButton(
+    "Sensory",
+    "https://img.youtube.com/vi/KuMdgPu4HEI/mqdefault.jpg",
+    () => openSensoryRandomFloat()
+  );
+  videoButtons.appendChild(sensoryBtn);
+}
+
+function createVideoButton(title, imgUrl, onClick){
+  const b = document.createElement("button");
+  b.className = "btn btn-yellow video-btn";
+  if (imgUrl) {
+    const img = document.createElement("img");
+    img.src = imgUrl;
+    img.alt = title;
+    img.className = "video-btn-thumb";
+    b.appendChild(img);
+  }
+  const label = document.createElement("span");
+  label.textContent = title;
+  b.appendChild(label);
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function loadYouTubeIframeApi(){
+  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+  if (ytIframeApiPromise) return ytIframeApiPromise;
+
+  ytIframeApiPromise = new Promise((resolve, reject) => {
+    const existingReady = window.onYouTubeIframeAPIReady;
+    let settled = false;
+    const finishResolve = () => {
+      if (settled) return;
+      settled = true;
+      window.onYouTubeIframeAPIReady = existingReady || null;
+      resolve(window.YT);
+    };
+    const finishReject = (error) => {
+      if (settled) return;
+      settled = true;
+      window.onYouTubeIframeAPIReady = existingReady || null;
+      ytIframeApiPromise = null;
+      reject(error);
+    };
+
+    const readyHandler = () => {
+      if (typeof existingReady === "function" && !existingReady.__schedYtReadyWrapper) {
+        existingReady();
+      }
+      finishResolve();
+    };
+    readyHandler.__schedYtReadyWrapper = true;
+    window.onYouTubeIframeAPIReady = readyHandler;
+
+    let script = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://www.youtube.com/iframe_api";
+      script.async = true;
+      script.onerror = () => finishReject(new Error("Failed to load YouTube Iframe API."));
+      document.head.appendChild(script);
+    }
+
+    const checkInterval = window.setInterval(() => {
+      if (window.YT && window.YT.Player) {
+        window.clearInterval(checkInterval);
+        finishResolve();
+      }
+    }, 100);
+
+    window.setTimeout(() => {
+      window.clearInterval(checkInterval);
+      if (!(window.YT && window.YT.Player)) {
+        finishReject(new Error("YouTube Iframe API timed out."));
+      }
+    }, 10000);
+  });
+
+  return ytIframeApiPromise;
+}
+
+function isOutOfSeasonHolidayVideo(title){
+  const normalized = (title ?? "").toString().toLowerCase();
+  if (!normalized) return false;
+
+  const currentMonth = (new Date()).getMonth() + 1;
+  for (const rule of HOLIDAY_VIDEO_RULES) {
+    if (!rule.keywords.some(k => normalized.includes(k))) continue;
+    return !rule.months.includes(currentMonth);
+  }
+  return false;
+}
+
+function playRandomSensoryVideo(player, excludedVideoId = null){
+  const playlist = player.getPlaylist();
+  if (Array.isArray(playlist) && playlist.length > 0) {
+    const candidates = excludedVideoId
+      ? playlist
+          .map((videoId, index) => ({ videoId, index }))
+          .filter(item => item.videoId !== excludedVideoId)
+      : playlist.map((videoId, index) => ({ videoId, index }));
+    const pool = candidates.length ? candidates : playlist.map((videoId, index) => ({ videoId, index }));
+    const randomIndex = pool[Math.floor(Math.random() * pool.length)].index;
+    player.playVideoAt(randomIndex);
+  } else {
+    player.nextVideo();
+  }
+}
+
+async function openSensoryRandomFloat(){
+  const frame = document.createElement("div");
+  frame.className = "float";
+  frame.style.left = "40px";
+  frame.style.top = "120px";
+
+  const header = document.createElement("div");
+  header.className = "float-header";
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "float-title";
+  titleEl.textContent = "Sensory";
+
+  const close = document.createElement("button");
+  close.className = "float-close";
+  close.textContent = "✕";
+  close.addEventListener("click", () => frame.remove());
+
+  header.appendChild(titleEl);
+  header.appendChild(close);
+
+  const body = document.createElement("div");
+  body.className = "float-body";
+
+  const playerHost = document.createElement("div");
+  playerHost.style.width = "100%";
+  playerHost.style.height = "100%";
+  body.appendChild(playerHost);
+
+  frame.appendChild(header);
+  frame.appendChild(body);
+  floatLayer.appendChild(frame);
+
+  const resize = document.createElement("div");
+  resize.className = "float-resize";
+  frame.appendChild(resize);
+  setupResizeLockedAspect(frame, resize, 16/9);
+  dragWithinBoard(frame, header);
+
+  try {
+    const YT = await loadYouTubeIframeApi();
+    let skipCount = 0;
+    const maxSkips = 50;
+
+    new YT.Player(playerHost, {
+      width: "100%",
+      height: "100%",
+      playerVars: {
+        autoplay: 1,
+        rel: 0,
+        listType: "playlist",
+        list: SENSORY_PLAYLIST_ID,
+      },
+      events: {
+        onReady: (event) => {
+          event.target.setShuffle(true);
+          playRandomSensoryVideo(event.target);
+        },
+        onStateChange: (event) => {
+          if (event.data !== YT.PlayerState.PLAYING) return;
+          const data = event.target.getVideoData();
+          if (isOutOfSeasonHolidayVideo(data?.title)) {
+            skipCount += 1;
+            if (skipCount >= maxSkips) {
+              titleEl.textContent = "No in-season videos available";
+              window.setTimeout(() => frame.remove(), 1200);
+              return;
+            }
+            playRandomSensoryVideo(event.target, data?.video_id || null);
+            return;
+          }
+          skipCount = 0;
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Sensory playlist error:", error);
+    titleEl.textContent = "Could not load sensory playlist";
+    window.setTimeout(() => frame.remove(), 1200);
+  }
 }
 
 function openVideoFloat(title, youtubeId){
