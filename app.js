@@ -684,7 +684,7 @@ function setupVideos(){
 
   const sensoryBtn = createVideoButton(
     "Sensory",
-    "https://img.youtube.com/vi/KuMdgPu4HEI/mqdefault.jpg",
+    "https://d18vdu4p71yql0.cloudfront.net/libraries/mulberry/sensory.svg",
     () => openSensoryRandomFloat()
   );
   videoButtons.appendChild(sensoryBtn);
