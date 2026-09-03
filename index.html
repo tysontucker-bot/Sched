@@ -36,14 +36,22 @@
       <div id="scheduleGrid" class="schedule-grid" aria-label="Schedule"></div>
     </div>
 
-    <div id="currentBox" class="current-box" role="region" aria-label="Current activity">
-      <div class="timer-disk" id="timerDisk"></div>
-      <div class="timer-center-readout" id="timerCenterReadout">--:--</div>
-      <div class="current-content">
-        <img id="currentIcon" class="current-icon" alt="" />
-        <div id="currentName" class="current-name">-</div>
-        <div id="currentRemaining" class="current-remaining">-</div>
-        <button class="btn details-btn hidden" id="btnDetails">Details</button>
+    <div id="currentBox" class="current-box" role="region" aria-label="Current and next activity">
+      <div class="current-now">
+        <div class="timer-disk" id="timerDisk"></div>
+        <div class="current-content">
+          <div class="current-label">NOW</div>
+          <img id="currentIcon" class="current-icon" alt="" />
+          <div id="currentName" class="current-name">-</div>
+          <div class="timer-center-readout" id="timerCenterReadout">--:--</div>
+          <div id="currentRemaining" class="current-remaining hidden">-</div>
+          <button class="btn details-btn hidden" id="btnDetails">Details</button>
+        </div>
+      </div>
+      <div class="current-next">
+        <div class="current-label">NEXT</div>
+        <img id="nextIcon" class="current-icon" alt="" />
+        <div id="nextName" class="current-name">-</div>
       </div>
       <div class="current-hint">Drag me</div>
       <div class="timer-resize" id="timerResize"></div>
