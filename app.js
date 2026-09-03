@@ -214,8 +214,9 @@ function updateTimerDiskFrame() {
   const remaining = Math.max(0, 1 - elapsed / total);
   const remainingSec = Math.max(0, nextStartSec - nowTotalSec);
   const fillPercent = remaining * 100;
+  const fillStartPercent = 100 - fillPercent;
   timerDisk.style.background =
-    `linear-gradient(to bottom, ${TIMER_COLOR} 0% ${fillPercent}%, transparent ${fillPercent}% 100%)`;
+    `linear-gradient(to bottom, transparent 0% ${fillStartPercent}%, ${TIMER_COLOR} ${fillStartPercent}% 100%)`;
   timerCenterReadout.textContent = formatCountdownClock(remainingSec);
 }
 
