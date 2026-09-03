@@ -122,6 +122,8 @@ const timerResize = document.getElementById("timerResize");
 const currentIcon = document.getElementById("currentIcon");
 const currentName = document.getElementById("currentName");
 const currentRemaining = document.getElementById("currentRemaining");
+const nextIcon = document.getElementById("nextIcon");
+const nextName = document.getElementById("nextName");
 
 const btnTools = document.getElementById("btnTools");
 const toolsDropdown = document.getElementById("toolsDropdown");
@@ -210,12 +212,10 @@ function updateTimerDiskFrame() {
   const total = Math.max(1, nextStartSec - activeStartSec);
   const elapsed = Math.min(total, Math.max(0, nowTotalSec - activeStartSec));
   const remaining = Math.max(0, 1 - elapsed / total);
-  const remainingDeg = remaining * 360;
   const remainingSec = Math.max(0, nextStartSec - nowTotalSec);
-  // 0deg in conic-gradient is 12 o'clock; color fills from 12 o'clock clockwise
-  // for remainingDeg, then shrinks back as time elapses.
+  const fillPercent = remaining * 100;
   timerDisk.style.background =
-    `conic-gradient(${TIMER_COLOR} 0deg ${remainingDeg}deg, transparent ${remainingDeg}deg 360deg)`;
+    `linear-gradient(to bottom, ${TIMER_COLOR} 0% ${fillPercent}%, transparent ${fillPercent}% 100%)`;
   timerCenterReadout.textContent = formatCountdownClock(remainingSec);
 }
 
@@ -455,6 +455,13 @@ function tickSchedule(){
   const nowCT = getCentralParts(now);
 
   const ordered = [...state.activities].slice().sort((a,b)=> timeToMinutes(a.time) - timeToMinutes(b.time));
+  if (!ordered.length){
+    setCurrentDisplay(null, null);
+    setNextDisplay(null);
+    lastActiveId = null;
+    markCards({ activeId:null, completedBeforeMin: -1, ordered });
+    return;
+  }
   const startMin = timeToMinutes(ordered[0]?.time ?? "7:15");
   const endMin = timeToMinutes(ordered[ordered.length-1]?.time ?? "14:10");
 
@@ -469,18 +476,20 @@ function tickSchedule(){
     if (next){
       // show the next activity's icon + name
       setCurrentDisplay(next, null);
+      setNextDisplay(ordered[1] ?? null);
 
       // show countdown text
       currentRemaining.textContent =
         `Starts in ${formatRemaining(minsUntil).replace(" remaining","")}`;
       timerDisk.style.background =
-        `conic-gradient(from -90deg, ${TIMER_COLOR} 0deg 360deg)`;
+        `linear-gradient(to bottom, ${TIMER_COLOR} 0% 100%)`;
       timerCenterReadout.textContent = formatCountdownClock(Math.max(0, startMin * 60 - nowTotalSec));
 
       // Before schedule start, keep the disk fully filled and show a numeric countdown.
       clearTimerState();
     } else {
       setCurrentDisplay(null, null);
+      setNextDisplay(null);
     }
 
     lastActiveId = null;
@@ -491,6 +500,7 @@ function tickSchedule(){
   // After last
   if (nowMin >= endMin){
     setCurrentDisplay(null, null);
+    setNextDisplay(null);
     lastActiveId = null;
     markCards({ activeId:null, completedBeforeMin: endMin, ordered });
     return;
@@ -498,6 +508,7 @@ function tickSchedule(){
 
   // Find active: last activity whose start <= now < nextStart
   let active = null;
+  let activeIndex = -1;
   let nextStartMin = endMin;
 
   for (let i=0;i<ordered.length;i++){
@@ -506,6 +517,7 @@ function tickSchedule(){
     const bMin = timeToMinutes(ordered[i+1]?.time ?? minutesToTime(endMin));
     if (nowMin >= aMin && nowMin < bMin){
       active = a;
+      activeIndex = i;
       nextStartMin = bMin;
       break;
     }
@@ -513,6 +525,7 @@ function tickSchedule(){
 
   if (!active){
     setCurrentDisplay(null, null);
+    setNextDisplay(null);
     lastActiveId = null;
     markCards({ activeId:null, completedBeforeMin: -1, ordered });
     return;
@@ -534,6 +547,7 @@ function tickSchedule(){
   }
 
   setCurrentDisplay(active, remaining);
+  setNextDisplay(ordered[activeIndex + 1] ?? null);
   // Update timer state for smooth RAF animation
   setTimerState(activeStart * 60, nextStartMin * 60);
 
@@ -559,6 +573,7 @@ function setCurrentDisplay(activity, remainingMinutes){
     currentIcon.style.visibility = "hidden";
     currentName.textContent = "-";
     currentRemaining.textContent = "-";
+    timerCenterReadout.textContent = "--:--";
     clearTimerState();
     btnDetails.classList.add("hidden");
     currentBox.classList.remove("has-steps");
@@ -573,6 +588,18 @@ function setCurrentDisplay(activity, remainingMinutes){
   const hasSteps = Array.isArray(activity.steps) && activity.steps.length > 0;
   btnDetails.classList.toggle("hidden", !hasSteps);
   currentBox.classList.toggle("has-steps", hasSteps);
+}
+
+function setNextDisplay(activity){
+  if (!activity){
+    nextIcon.src = "";
+    nextIcon.style.visibility = "hidden";
+    nextName.textContent = "-";
+    return;
+  }
+  nextIcon.style.visibility = "visible";
+  nextIcon.src = activity.icon;
+  nextName.textContent = activity.name;
 }
 
 /* ------------------ Draggable current activity box ------------------ */
