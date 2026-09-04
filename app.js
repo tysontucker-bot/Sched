@@ -260,9 +260,27 @@ btnDetails.addEventListener("click", () => {
 });
 
 btnSettings.addEventListener("click", () => {
-  settingsPanel.classList.toggle("hidden");
+  setSettingsPanelOpen(settingsPanel.classList.contains("hidden"));
   toolsDropdown.classList.add("hidden");
   syncSettingsUI();
+});
+
+btnSettings.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown" && settingsPanel.classList.contains("hidden")) {
+    e.preventDefault();
+    setSettingsPanelOpen(true);
+    toggleEditMode.focus();
+  } else if (e.key === "Escape" && !settingsPanel.classList.contains("hidden")) {
+    e.preventDefault();
+    setSettingsPanelOpen(false, true);
+  }
+});
+
+settingsPanel.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    setSettingsPanelOpen(false, true);
+  }
 });
 
 toggleEditMode.addEventListener("change", () => {
@@ -318,8 +336,7 @@ document.addEventListener("click", (e) => {
     toolsDropdown.classList.add("hidden");
   }
   if (!settingsMenu.contains(e.target)) {
-    settingsPanel.classList.add("hidden");
-    syncSettingsUI();
+    setSettingsPanelOpen(false);
   }
 });
 
@@ -2301,6 +2318,12 @@ function syncSettingsUI(){
   toggleShowFullSchedule.checked = !!prefs.showFullSchedule;
   toggleShowNowNext.checked = !!prefs.showNowNext;
   btnReset.classList.toggle("hidden", !editMode);
+}
+
+function setSettingsPanelOpen(isOpen, focusButton = false){
+  settingsPanel.classList.toggle("hidden", !isOpen);
+  syncSettingsUI();
+  if (focusButton) btnSettings.focus();
 }
 
 /* ------------------ Helpers ------------------ */
