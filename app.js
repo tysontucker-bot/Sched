@@ -2296,13 +2296,11 @@ function saveState(){
 }
 
 function getPreferences(){
-  if (!state.preferences || typeof state.preferences !== "object"){
-    state.preferences = { ...DEFAULT_PREFERENCES };
-  }
-  return {
+  state.preferences = {
     ...DEFAULT_PREFERENCES,
-    ...state.preferences,
+    ...(state.preferences && typeof state.preferences === "object" ? state.preferences : {}),
   };
+  return state.preferences;
 }
 
 function applyDisplayPreferences(){
