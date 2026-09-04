@@ -18,6 +18,10 @@ const MIGRATION_KEY_5 = "sched:migratedMorningAfternoonSchedule:v1";
 const POS_KEY = "sched:currentBoxPos:v1";
 const SIZE_KEY = "sched:currentBoxSize:v1";
 const TIMER_COLOR = "#e53935";
+const DEFAULT_PREFERENCES = {
+  showFullSchedule: true,
+  showNowNext: true,
+};
 
 const ENGLISH_UNIQUE_IMAGES = [
   { src:"./table1.png", caption:"Table 1" },
@@ -132,7 +136,12 @@ const toolsWhosHere = document.getElementById("toolsWhosHere");
 const btnVideos = document.getElementById("btnVideos");
 const btnMeetings = document.getElementById("btnMeetings");
 const btnWebsites = document.getElementById("btnWebsites");
+const settingsMenu = document.getElementById("settingsMenu");
 const btnSettings = document.getElementById("btnSettings");
+const settingsPanel = document.getElementById("settingsPanel");
+const toggleEditMode = document.getElementById("toggleEditMode");
+const toggleShowFullSchedule = document.getElementById("toggleShowFullSchedule");
+const toggleShowNowNext = document.getElementById("toggleShowNowNext");
 const btnReset = document.getElementById("btnReset");
 
 const videosOverlay = document.getElementById("videosOverlay");
@@ -251,15 +260,43 @@ btnDetails.addEventListener("click", () => {
 });
 
 btnSettings.addEventListener("click", () => {
-  editMode = !editMode;
-  btnReset.classList.toggle("hidden", !editMode);
+  settingsPanel.classList.toggle("hidden");
+  toolsDropdown.classList.add("hidden");
+  syncSettingsUI();
+});
+
+toggleEditMode.addEventListener("change", () => {
+  editMode = toggleEditMode.checked;
   render();
+});
+
+toggleShowFullSchedule.addEventListener("change", () => {
+  state.preferences = {
+    ...getPreferences(),
+    showFullSchedule: toggleShowFullSchedule.checked,
+  };
+  saveState();
+  applyDisplayPreferences();
+  syncSettingsUI();
+});
+
+toggleShowNowNext.addEventListener("change", () => {
+  state.preferences = {
+    ...getPreferences(),
+    showNowNext: toggleShowNowNext.checked,
+  };
+  saveState();
+  applyDisplayPreferences();
+  syncSettingsUI();
 });
 
 btnReset.addEventListener("click", () => {
   if (!editMode) return;
   if (!confirm("Reset schedule to defaults?")) return;
-  state = { activities: structuredClone(DEFAULT_ACTIVITIES) };
+  state = {
+    activities: structuredClone(DEFAULT_ACTIVITIES),
+    preferences: { ...getPreferences() },
+  };
   saveState();
   render();
 });
@@ -279,6 +316,10 @@ toolsWhosHere.addEventListener("click", () => {
 document.addEventListener("click", (e) => {
   if (!document.getElementById("toolsMenu").contains(e.target)) {
     toolsDropdown.classList.add("hidden");
+  }
+  if (!settingsMenu.contains(e.target)) {
+    settingsPanel.classList.add("hidden");
+    syncSettingsUI();
   }
 });
 
@@ -305,6 +346,8 @@ function render(){
   state.activities.forEach(a => scheduleGrid.appendChild(renderCard(a)));
 
   tickSchedule();
+  applyDisplayPreferences();
+  syncSettingsUI();
 }
 
 function renderCard(a){
@@ -2219,13 +2262,45 @@ function loadState(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       localStorage.setItem(MIGRATION_KEY_5, "1");
     }
+    saved.preferences = {
+      ...DEFAULT_PREFERENCES,
+      ...(saved.preferences || {}),
+    };
     return saved;
   }
-  return { activities: structuredClone(DEFAULT_ACTIVITIES) };
+  return {
+    activities: structuredClone(DEFAULT_ACTIVITIES),
+    preferences: { ...DEFAULT_PREFERENCES },
+  };
 }
 
 function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getPreferences(){
+  if (!state.preferences || typeof state.preferences !== "object"){
+    state.preferences = { ...DEFAULT_PREFERENCES };
+  }
+  return {
+    ...DEFAULT_PREFERENCES,
+    ...state.preferences,
+  };
+}
+
+function applyDisplayPreferences(){
+  const prefs = getPreferences();
+  scheduleGrid.classList.toggle("hidden", !prefs.showFullSchedule);
+  currentBox.classList.toggle("hidden", !prefs.showNowNext);
+}
+
+function syncSettingsUI(){
+  const prefs = getPreferences();
+  btnSettings.setAttribute("aria-expanded", String(!settingsPanel.classList.contains("hidden")));
+  toggleEditMode.checked = editMode;
+  toggleShowFullSchedule.checked = !!prefs.showFullSchedule;
+  toggleShowNowNext.checked = !!prefs.showNowNext;
+  btnReset.classList.toggle("hidden", !editMode);
 }
 
 /* ------------------ Helpers ------------------ */
