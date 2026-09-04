@@ -2309,6 +2309,8 @@ function applyDisplayPreferences(){
   const prefs = getPreferences();
   scheduleGrid.classList.toggle("hidden", !prefs.showFullSchedule);
   currentBox.classList.toggle("hidden", !prefs.showNowNext);
+  scheduleGrid.setAttribute("aria-hidden", String(!prefs.showFullSchedule));
+  currentBox.setAttribute("aria-hidden", String(!prefs.showNowNext));
 }
 
 function syncSettingsUI(){
