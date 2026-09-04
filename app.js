@@ -2307,6 +2307,12 @@ function getPreferences(){
 
 function applyDisplayPreferences(){
   const prefs = getPreferences();
+  if (!prefs.showFullSchedule && scheduleGrid.contains(document.activeElement)) {
+    btnSettings.focus();
+  }
+  if (!prefs.showNowNext && currentBox.contains(document.activeElement)) {
+    btnSettings.focus();
+  }
   scheduleGrid.classList.toggle("hidden", !prefs.showFullSchedule);
   currentBox.classList.toggle("hidden", !prefs.showNowNext);
   scheduleGrid.setAttribute("aria-hidden", String(!prefs.showFullSchedule));
