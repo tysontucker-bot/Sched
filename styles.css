@@ -75,6 +75,9 @@ body{
 .tools-menu{
   position: relative;
 }
+.settings-menu{
+  position: relative;
+}
 .tools-dropdown{
   position: absolute;
   top: calc(100% + 4px);
@@ -101,6 +104,47 @@ body{
 }
 .tools-item:hover{ background: rgba(0,0,0,0.08); }
 .tools-item + .tools-item{ border-top: 2px solid var(--border); }
+
+.settings-panel{
+  position:absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width:min(320px, 80vw);
+  background: rgba(255,255,255,0.95);
+  border: 3px solid var(--border);
+  border-radius: 10px;
+  z-index: 100;
+  overflow: hidden;
+}
+.settings-section{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+}
+.settings-section + .settings-section{
+  border-top: 2px solid var(--border);
+}
+.settings-section-title{
+  font-weight:900;
+  font-size:0.95rem;
+}
+.settings-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  font-size:0.95rem;
+  cursor:pointer;
+}
+.settings-toggle input{
+  width:20px;
+  height:20px;
+  margin:0;
+}
+.settings-action{
+  width:100%;
+}
 
 .layout{
   position:absolute;

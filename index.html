@@ -27,8 +27,30 @@
         <button class="btn" id="btnVideos">Videos</button>
         <button class="btn" id="btnMeetings">Meetings</button>
         <button class="btn" id="btnWebsites">Websites</button>
-        <button class="btn" id="btnSettings">Settings</button>
-        <button class="btn btn-danger hidden" id="btnReset">Reset Schedule</button>
+        <div class="settings-menu" id="settingsMenu">
+          <button class="btn" id="btnSettings" aria-expanded="false" aria-haspopup="true" aria-controls="settingsPanel">Settings ▾</button>
+          <div class="settings-panel hidden" id="settingsPanel">
+            <div class="settings-section">
+              <div class="settings-section-title">Schedule Editing</div>
+              <label class="settings-toggle" for="toggleEditMode">
+                <input type="checkbox" id="toggleEditMode" />
+                <span>Edit Schedule</span>
+              </label>
+              <button class="btn btn-danger settings-action hidden" id="btnReset">Reset Schedule</button>
+            </div>
+            <div class="settings-section">
+              <div class="settings-section-title">Schedule Display</div>
+              <label class="settings-toggle" for="toggleShowFullSchedule">
+                <input type="checkbox" id="toggleShowFullSchedule" />
+                <span>Show Full Schedule</span>
+              </label>
+              <label class="settings-toggle" for="toggleShowNowNext">
+                <input type="checkbox" id="toggleShowNowNext" />
+                <span>Show Now / Next</span>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
