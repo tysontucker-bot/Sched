@@ -100,7 +100,7 @@ const HOLIDAY_VIDEO_RULES = [
 let ytIframeApiPromise = null;
 
 const MEETING_URLS = {
-  morning: "https://docs.google.com/presentation/d/1ehGBSHcag-uoCxJVIuGAsHY7kQ3AVrHTxWZ3AJjC_W8/edit?slide=id.ge9e5be468d_2_0#slide=id.ge9e5be468d_2_0",
+  morning: "https://canva.link/r6sk3h5ek9ao8k5",
   afternoonMW: "https://docs.google.com/presentation/d/1Ky8pVzQlebqWIBbcfNAMni8VbtqwMehrAO5tnsCzsis/edit?slide=id.p1#slide=id.p1",
   afternoonTTh: "https://docs.google.com/presentation/d/1lpEoEn4zEsGPOeRcUa9bM8ZMIf38VMEwt0lImswLBSA/edit?slide=id.p1#slide=id.p1",
   powerschool: "https://saisd.powerschool.com/teachers/home.html",
