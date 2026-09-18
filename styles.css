@@ -450,6 +450,10 @@ body{
   font-size:0.9rem;
   line-height:1.1;
 }
+.subs-launcher:focus-visible{
+  outline:4px solid #1565c0;
+  outline-offset:4px;
+}
 @media (max-width: 900px), (max-height: 760px){
   .subs-launcher{
     top:auto;

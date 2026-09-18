@@ -206,6 +206,7 @@ const SUBSTITUTE_GUIDE = {
           title: "Prepare to Go Home",
           timeLabel: "1:35–2:20",
           scheduleNames: ["Television", "Bus"],
+          scheduleTimes: ["13:45", "14:10"],
           bullets: [
             "Begin dismissal routines.",
             "Pack student belongings.",
