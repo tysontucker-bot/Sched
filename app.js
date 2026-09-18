@@ -626,7 +626,7 @@ function renderCard(a){
   const img = document.createElement("img");
   img.className = "card-icon" + (substituteEnabled ? " substitute-hotspot" : "");
   img.src = a.icon;
-  img.alt = substituteEnabled ? `Open substitute directions for ${a.name}` : "";
+  img.alt = "";
   if (substituteEnabled) {
     img.tabIndex = 0;
     img.setAttribute("role", "button");
@@ -1046,7 +1046,6 @@ function syncCurrentIconSubstituteState(){
     currentIcon.tabIndex = 0;
     currentIcon.setAttribute("role", "button");
     currentIcon.setAttribute("aria-label", `Open substitute directions for ${currentActivity.name}`);
-    currentIcon.alt = `Open substitute directions for ${currentActivity.name}`;
   } else {
     currentIcon.removeAttribute("tabindex");
     currentIcon.removeAttribute("role");
@@ -2809,7 +2808,7 @@ function syncSettingsUI(){
   toggleSubstitute.checked = !!prefs.substituteMode;
   btnReset.classList.toggle("hidden", !editMode);
   subsLauncher.classList.toggle("hidden", !prefs.substituteMode || editMode);
-  document.body.classList.toggle("substitute-mode-active", !!prefs.substituteMode && !editMode);
+  document.body.classList.toggle("substitute-mode-active", !!prefs.substituteMode);
   syncCurrentIconSubstituteState();
 }
 
