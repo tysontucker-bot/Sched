@@ -1172,7 +1172,6 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
   frame.className = "float substitute-float substitute-window";
   frame.setAttribute("role", "dialog");
   frame.setAttribute("aria-modal", "false");
-  frame.setAttribute("aria-label", windowTitle);
   frame.tabIndex = -1;
   const initialWidth = Math.min(width, window.innerWidth - 16);
   const initialHeight = Math.min(height, window.innerHeight - 16);
@@ -1197,6 +1196,8 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
   const title = document.createElement("div");
   title.className = "float-title";
   title.textContent = windowTitle;
+  title.id = `substituteWindowTitle-${uid()}`;
+  frame.setAttribute("aria-labelledby", title.id);
 
   const close = document.createElement("button");
   close.className = "float-close";
@@ -1213,10 +1214,6 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
   frame.appendChild(header);
   frame.appendChild(body);
 
-  const resize = document.createElement("div");
-  resize.className = "float-resize";
-  frame.appendChild(resize);
-
   floatLayer.appendChild(frame);
   frame.style.left = `${Math.max(8, (window.innerWidth - frame.offsetWidth) / 2)}px`;
   frame.style.top = `${Math.max(8, (window.innerHeight - frame.offsetHeight) / 2)}px`;
@@ -1226,10 +1223,7 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
       closeWindow();
     }
   });
-  close.focus();
-
-  setupFreeResize(frame, resize);
-  dragWithinBoard(frame, header);
+  frame.focus();
 }
 
 function openSubstituteDirectionsWindow(activity){
