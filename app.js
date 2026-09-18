@@ -1119,7 +1119,7 @@ function createSubstituteDirectionsContent(activity){
   if (!entry) {
     const note = document.createElement("div");
     note.className = "substitute-doc-note";
-    note.textContent = "No event-specific substitute note was added for this activity, so use the general classroom guidance below.";
+    note.textContent = `No event-specific substitute note was added for this activity. Most important: ${SUBSTITUTE_GUIDE.important}`;
     wrap.appendChild(note);
   }
 
@@ -2815,6 +2815,7 @@ function syncSettingsUI(){
   toggleSubstitute.checked = !!prefs.substituteMode;
   btnReset.classList.toggle("hidden", !editMode);
   subsLauncher.classList.toggle("hidden", !prefs.substituteMode || editMode);
+  document.body.classList.toggle("substitute-mode-active", !!prefs.substituteMode && !editMode);
   syncCurrentIconSubstituteState();
 }
 

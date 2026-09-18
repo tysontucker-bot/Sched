@@ -154,6 +154,9 @@ body{
   flex-direction:column;
   overflow:hidden;
 }
+body.substitute-mode-active .layout{
+  padding-right:140px;
+}
 
 .schedule-grid{
   display:grid;
@@ -455,6 +458,10 @@ body{
   outline-offset:4px;
 }
 @media (max-width: 900px), (max-height: 760px){
+  body.substitute-mode-active .layout{
+    padding-right:14px;
+    padding-bottom:120px;
+  }
   .subs-launcher{
     top:auto;
     right:10px;
