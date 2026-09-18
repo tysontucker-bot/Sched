@@ -48,7 +48,7 @@ const SUBSTITUTE_GUIDE = {
           timeLabel: "8:00–8:05",
           matchNames: ["Writing"],
           bullets: [
-            "Complete the name writing activity at each students desk.",
+            "Complete the name writing activity at each student's desk.",
             "Keep this activity short and highly supported.",
             "Some students may need hand-over-hand or visual prompting depending on their individual needs.",
           ],
@@ -1161,10 +1161,12 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
 
   const frame = document.createElement("div");
   frame.className = "float substitute-float substitute-window";
-  frame.style.width = `${Math.min(width, window.innerWidth - 16)}px`;
-  frame.style.height = `${Math.min(height, window.innerHeight - 16)}px`;
-  frame.style.left = `${Math.max(8, (window.innerWidth - frame.offsetWidth) / 2)}px`;
-  frame.style.top = `${Math.max(8, (window.innerHeight - height) / 2)}px`;
+  const initialWidth = Math.min(width, window.innerWidth - 16);
+  const initialHeight = Math.min(height, window.innerHeight - 16);
+  frame.style.width = `${initialWidth}px`;
+  frame.style.height = `${initialHeight}px`;
+  frame.style.left = `${Math.max(8, (window.innerWidth - initialWidth) / 2)}px`;
+  frame.style.top = `${Math.max(8, (window.innerHeight - initialHeight) / 2)}px`;
 
   const header = document.createElement("div");
   header.className = "float-header";
@@ -2782,7 +2784,7 @@ function syncSettingsUI(){
   toggleShowNowNext.checked = !!prefs.showNowNext;
   toggleSubstitute.checked = !!prefs.substituteMode;
   btnReset.classList.toggle("hidden", !editMode);
-  subsLauncher.classList.toggle("hidden", !prefs.substituteMode);
+  subsLauncher.classList.toggle("hidden", !prefs.substituteMode || editMode);
   syncCurrentIconSubstituteState();
 }
 
