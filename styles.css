@@ -450,6 +450,24 @@ body{
   font-size:0.9rem;
   line-height:1.1;
 }
+@media (max-width: 900px), (max-height: 760px){
+  .subs-launcher{
+    top:auto;
+    right:10px;
+    bottom:10px;
+    transform:none;
+    width:96px;
+    padding:8px 6px 10px;
+  }
+  .subs-launcher-mark{
+    width:60px;
+    height:60px;
+    font-size:2.35rem;
+  }
+  .subs-launcher-label{
+    font-size:0.75rem;
+  }
+}
 
 .modal-overlay{
   position:fixed;

@@ -35,7 +35,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Breakfast",
           timeLabel: "7:35–7:50",
-          matchNames: ["Breakfast"],
+          scheduleNames: ["Breakfast"],
           bullets: [
             "Students eat breakfast in the classroom.",
             "Help students as needed with opening containers, eating, and cleaning up.",
@@ -46,7 +46,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Writing",
           timeLabel: "8:00–8:05",
-          matchNames: ["Writing"],
+          scheduleNames: ["Writing"],
           bullets: [
             "Complete the name writing activity at each student's desk.",
             "Keep this activity short and highly supported.",
@@ -56,7 +56,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Morning Meeting",
           timeLabel: "8:10–8:25",
-          matchNames: ["Morning Meeting"],
+          scheduleNames: ["Morning Meeting"],
           bullets: [
             "Follow the morning meeting materials provided (go to meetings, then morning meeting on the visual schedule).",
             "Follow prompts and play videos.",
@@ -65,8 +65,8 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Gross Motor",
           timeLabel: "8:30–8:45",
-          matchNames: ["Swing"],
-          matchTimes: ["8:30"],
+          scheduleNames: ["Swing"],
+          scheduleTimes: ["8:30"],
           bullets: [
             "Take students to the gross motor area.",
             "Allow students to participate in the activities available in the room.",
@@ -76,7 +76,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Group Tables",
           timeLabel: "8:50–9:10",
-          matchNames: ["English"],
+          scheduleNames: ["English"],
           bullets: [
             "Table 1 — Ayden, Jaxon, Juan, Emmi: Alphabet match flashcards.",
             "Table 2 — Jacob, Zane: Zane works on picture match. Jacob works on sitting, and every minute he sits he gets a skittle.",
@@ -86,7 +86,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Attendance",
           timeLabel: "9:10–9:15",
-          matchNames: ["Attendance"],
+          scheduleNames: ["Attendance"],
           bullets: [
             "Complete attendance.",
             "Make sure all students are accounted for before transitioning.",
@@ -95,7 +95,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Recess",
           timeLabel: "9:15–9:35",
-          matchNames: ["Recess"],
+          scheduleNames: ["Recess"],
           bullets: [
             "Take students to recess.",
             "Maintain close supervision.",
@@ -110,7 +110,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Water Break",
           timeLabel: "9:40–9:50",
-          matchNames: ["Break", "Drink Water"],
+          scheduleNames: ["Break", "Drink Water"],
           bullets: [
             "Return to the classroom.",
             "Give students water from the locker labeled \"Water\".",
@@ -120,7 +120,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Math",
           timeLabel: "9:50–10:05",
-          matchNames: ["Math"],
+          scheduleNames: ["Math"],
           bullets: [
             "Table 1 — Ayden, Jaxon, Juan, Emmi: Alphabet match flashcards. Give reinforcement for each correct response and move tokens after each round.",
             "Table 2 — Jacob, Zane: Zane works on number flashcards. Jacob works on sitting, and every minute he sits he gets a skittle.",
@@ -130,7 +130,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Snack",
           timeLabel: "10:05–10:30",
-          matchNames: ["Snack"],
+          scheduleNames: ["Snack"],
           bullets: [
             "Students eat snack.",
             "Assist with food and communication as needed.",
@@ -140,7 +140,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Gross Motor / PE",
           timeLabel: "10:30–10:40",
-          matchNames: ["PE"],
+          scheduleNames: ["PE"],
           bullets: [
             "Short gross-motor break.",
             "Closely supervise students using equipment.",
@@ -155,7 +155,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Lunch",
           timeLabel: "11:30–12:00",
-          matchNames: ["Lunch"],
+          scheduleNames: ["Lunch"],
           bullets: [
             "Take students to lunch.",
             "Assist as needed.",
@@ -173,8 +173,8 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Gross Motor",
           timeLabel: "12:05–12:30",
-          matchNames: ["Swing"],
-          matchTimes: ["12:00"],
+          scheduleNames: ["Swing"],
+          scheduleTimes: ["12:00"],
           bullets: [
             "Return to the gross motor room.",
             "Allow students to participate in appropriate activities.",
@@ -184,7 +184,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Quiet Time",
           timeLabel: "12:35–1:10",
-          matchNames: ["Rest"],
+          scheduleNames: ["Rest"],
           bullets: [
             "Zane, Jacob, Juan go to sensory.",
             "If you want to try afternoon meeting with them during this time using an iPad, please do.",
@@ -197,7 +197,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Afternoon Meeting",
           timeLabel: "1:15–1:45",
-          matchNames: ["Afternoon Meeting"],
+          scheduleNames: ["Afternoon Meeting"],
           bullets: [
             "Follow the prepared meeting.",
           ],
@@ -205,7 +205,7 @@ const SUBSTITUTE_GUIDE = {
         {
           title: "Prepare to Go Home",
           timeLabel: "1:35–2:20",
-          matchNames: ["Television", "Bus"],
+          scheduleNames: ["Television", "Bus"],
           bullets: [
             "Begin dismissal routines.",
             "Pack student belongings.",
@@ -1050,11 +1050,11 @@ function syncCurrentIconSubstituteState(){
 
 function matchesSubstituteEntry(activity, entry){
   if (!activity || !entry) return false;
-  const matchNames = Array.isArray(entry.matchNames) ? entry.matchNames : [];
-  const matchTimes = Array.isArray(entry.matchTimes) ? entry.matchTimes : [];
-  if (matchNames.length === 0 && matchTimes.length === 0) return false;
-  const nameMatch = matchNames.length === 0 || matchNames.includes(activity.name);
-  const timeMatch = matchTimes.length === 0 || matchTimes.includes(activity.time);
+  const scheduleNames = Array.isArray(entry.scheduleNames) ? entry.scheduleNames : [];
+  const scheduleTimes = Array.isArray(entry.scheduleTimes) ? entry.scheduleTimes : [];
+  if (scheduleNames.length === 0 && scheduleTimes.length === 0) return false;
+  const nameMatch = scheduleNames.length === 0 || scheduleNames.includes(activity.name);
+  const timeMatch = scheduleTimes.length === 0 || scheduleTimes.includes(activity.time);
   return nameMatch && timeMatch;
 }
 
