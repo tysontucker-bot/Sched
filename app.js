@@ -1028,8 +1028,14 @@ function isSubstituteModeEnabled(){
   return !!getPreferences().substituteMode;
 }
 
-function closeSubstituteWindows(){
-  floatLayer.querySelectorAll(".substitute-window").forEach(el => el.remove());
+function closeSubstituteWindows({ restoreFocus = true } = {}){
+  floatLayer.querySelectorAll(".substitute-window").forEach(el => {
+    if (typeof el.__closeSubstituteWindow === "function") {
+      el.__closeSubstituteWindow({ restoreFocus });
+    } else {
+      el.remove();
+    }
+  });
 }
 
 function syncCurrentIconSubstituteState(){
@@ -1053,8 +1059,10 @@ function matchesSubstituteEntry(activity, entry){
   const scheduleNames = Array.isArray(entry.scheduleNames) ? entry.scheduleNames : [];
   const scheduleTimes = Array.isArray(entry.scheduleTimes) ? entry.scheduleTimes : [];
   if (scheduleNames.length === 0 && scheduleTimes.length === 0) return false;
-  const nameMatch = scheduleNames.length === 0 || scheduleNames.includes(activity.name);
-  const timeMatch = scheduleTimes.length === 0 || scheduleTimes.includes(activity.time);
+  const normalizedName = normalizeSubstituteToken(activity.name);
+  const normalizedTime = normalizeTime(activity.time);
+  const nameMatch = scheduleNames.length === 0 || scheduleNames.some(name => normalizeSubstituteToken(name) === normalizedName);
+  const timeMatch = scheduleTimes.length === 0 || scheduleTimes.some(time => normalizeTime(time) === normalizedTime);
   return nameMatch && timeMatch;
 }
 
@@ -1157,16 +1165,30 @@ function createSubstituteDocumentContent(){
 }
 
 function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 360 } = {}){
-  closeSubstituteWindows();
+  closeSubstituteWindows({ restoreFocus: false });
 
   const frame = document.createElement("div");
   frame.className = "float substitute-float substitute-window";
+  frame.setAttribute("role", "dialog");
+  frame.setAttribute("aria-modal", "false");
+  frame.setAttribute("aria-label", windowTitle);
+  frame.tabIndex = -1;
   const initialWidth = Math.min(width, window.innerWidth - 16);
   const initialHeight = Math.min(height, window.innerHeight - 16);
   frame.style.width = `${initialWidth}px`;
   frame.style.height = `${initialHeight}px`;
   frame.style.left = `${Math.max(8, (window.innerWidth - initialWidth) / 2)}px`;
   frame.style.top = `${Math.max(8, (window.innerHeight - initialHeight) / 2)}px`;
+  const restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+  function closeWindow({ restoreFocus = true } = {}){
+    if (!frame.isConnected) return;
+    frame.remove();
+    if (restoreFocus && restoreTarget && restoreTarget.isConnected && typeof restoreTarget.focus === "function") {
+      restoreTarget.focus();
+    }
+  }
+  frame.__closeSubstituteWindow = closeWindow;
 
   const header = document.createElement("div");
   header.className = "float-header";
@@ -1178,7 +1200,7 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
   const close = document.createElement("button");
   close.className = "float-close";
   close.textContent = "✕";
-  close.addEventListener("click", () => frame.remove());
+  close.addEventListener("click", () => closeWindow());
 
   header.appendChild(title);
   header.appendChild(close);
@@ -1197,6 +1219,13 @@ function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 
   floatLayer.appendChild(frame);
   frame.style.left = `${Math.max(8, (window.innerWidth - frame.offsetWidth) / 2)}px`;
   frame.style.top = `${Math.max(8, (window.innerHeight - frame.offsetHeight) / 2)}px`;
+  frame.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeWindow();
+    }
+  });
+  close.focus();
 
   setupFreeResize(frame, resize);
   dragWithinBoard(frame, header);
@@ -2811,6 +2840,13 @@ function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
 function safeParse(s){
   try{ return JSON.parse(s); } catch{ return null; }
+}
+
+function normalizeSubstituteToken(value){
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function normalizeTime(v){
