@@ -21,6 +21,213 @@ const TIMER_COLOR = "#e53935";
 const DEFAULT_PREFERENCES = {
   showFullSchedule: true,
   showNowNext: true,
+  substituteMode: false,
+};
+
+const SUBSTITUTE_GUIDE = {
+  title: "SUBSTITUTE TEACHER DIRECTIONS",
+  subtitle: "Mr. Tucker’s Life Skills Classroom",
+  important: "Keep the students safe, supervised, and engaged. Follow the visual schedule throughout the day. The exact academic expectations are less important than maintaining a calm, predictable routine.",
+  sections: [
+    {
+      title: "Morning",
+      entries: [
+        {
+          title: "Breakfast",
+          timeLabel: "7:35–7:50",
+          matchNames: ["Breakfast"],
+          bullets: [
+            "Students eat breakfast in the classroom.",
+            "Help students as needed with opening containers, eating, and cleaning up.",
+            "Students should remain seated unless they need assistance.",
+            "Begin transitioning students when breakfast is finished.",
+          ],
+        },
+        {
+          title: "Writing",
+          timeLabel: "8:00–8:05",
+          matchNames: ["Writing"],
+          bullets: [
+            "Complete the name writing activity at each students desk.",
+            "Keep this activity short and highly supported.",
+            "Some students may need hand-over-hand or visual prompting depending on their individual needs.",
+          ],
+        },
+        {
+          title: "Morning Meeting",
+          timeLabel: "8:10–8:25",
+          matchNames: ["Morning Meeting"],
+          bullets: [
+            "Follow the morning meeting materials provided (go to meetings, then morning meeting on the visual schedule).",
+            "Follow prompts and play videos.",
+          ],
+        },
+        {
+          title: "Gross Motor",
+          timeLabel: "8:30–8:45",
+          matchNames: ["Swing"],
+          matchTimes: ["8:30"],
+          bullets: [
+            "Take students to the gross motor area.",
+            "Allow students to participate in the activities available in the room.",
+            "Closely supervise students while using equipment.",
+          ],
+        },
+        {
+          title: "Group Tables",
+          timeLabel: "8:50–9:10",
+          matchNames: ["English"],
+          bullets: [
+            "Table 1 — Ayden, Jaxon, Juan, Emmi: Alphabet match flashcards.",
+            "Table 2 — Jacob, Zane: Zane works on picture match. Jacob works on sitting, and every minute he sits he gets a skittle.",
+            "Table 3 — Mason, Jesse: Unique Learning on the iPads at the back of the room by the window. Scan the QR code provided for each and do English. Give Jesse a whiteboard with marker and redirect him to that if he tries to mark up the assignment in Unique.",
+          ],
+        },
+        {
+          title: "Attendance",
+          timeLabel: "9:10–9:15",
+          matchNames: ["Attendance"],
+          bullets: [
+            "Complete attendance.",
+            "Make sure all students are accounted for before transitioning.",
+          ],
+        },
+        {
+          title: "Recess",
+          timeLabel: "9:15–9:35",
+          matchNames: ["Recess"],
+          bullets: [
+            "Take students to recess.",
+            "Maintain close supervision.",
+            "Watch closely for eloping and mouthing of woodchips.",
+          ],
+        },
+      ],
+    },
+    {
+      title: "Late Morning",
+      entries: [
+        {
+          title: "Water Break",
+          timeLabel: "9:40–9:50",
+          matchNames: ["Break", "Drink Water"],
+          bullets: [
+            "Return to the classroom.",
+            "Give students water from the locker labeled \"Water\".",
+            "Depending on mood, turn on the 10 minute sensory timer.",
+          ],
+        },
+        {
+          title: "Math",
+          timeLabel: "9:50–10:05",
+          matchNames: ["Math"],
+          bullets: [
+            "Table 1 — Ayden, Jaxon, Juan, Emmi: Alphabet match flashcards. Give reinforcement for each correct response and move tokens after each round.",
+            "Table 2 — Jacob, Zane: Zane works on number flashcards. Jacob works on sitting, and every minute he sits he gets a skittle.",
+            "Table 3 — Mason, Jesse: Unique Learning on the iPads at the back of the room by the window. Scan the QR code provided for each and do Math.",
+          ],
+        },
+        {
+          title: "Snack",
+          timeLabel: "10:05–10:30",
+          matchNames: ["Snack"],
+          bullets: [
+            "Students eat snack.",
+            "Assist with food and communication as needed.",
+            "Clean up before transitioning.",
+          ],
+        },
+        {
+          title: "Gross Motor / PE",
+          timeLabel: "10:30–10:40",
+          matchNames: ["PE"],
+          bullets: [
+            "Short gross-motor break.",
+            "Closely supervise students using equipment.",
+            "This is PE time.",
+          ],
+        },
+      ],
+    },
+    {
+      title: "Lunch & Afternoon",
+      entries: [
+        {
+          title: "Lunch",
+          timeLabel: "11:30–12:00",
+          matchNames: ["Lunch"],
+          bullets: [
+            "Take students to lunch.",
+            "Assist as needed.",
+            "Monitor students closely.",
+          ],
+        },
+        {
+          title: "Bathroom",
+          timeLabel: "12:00–12:05",
+          bullets: [
+            "Follow the classroom bathroom routine.",
+            "Maintain appropriate supervision and privacy.",
+          ],
+        },
+        {
+          title: "Gross Motor",
+          timeLabel: "12:05–12:30",
+          matchNames: ["Swing"],
+          matchTimes: ["12:00"],
+          bullets: [
+            "Return to the gross motor room.",
+            "Allow students to participate in appropriate activities.",
+            "This is a good opportunity for students to move before the quieter afternoon activities.",
+          ],
+        },
+        {
+          title: "Quiet Time",
+          timeLabel: "12:35–1:10",
+          matchNames: ["Rest"],
+          bullets: [
+            "Zane, Jacob, Juan go to sensory.",
+            "If you want to try afternoon meeting with them during this time using an iPad, please do.",
+            "Others return to the classroom.",
+            "Lower the activity level.",
+            "Students should participate in quiet activities.",
+            "Use individual sensory and communication supports as needed.",
+          ],
+        },
+        {
+          title: "Afternoon Meeting",
+          timeLabel: "1:15–1:45",
+          matchNames: ["Afternoon Meeting"],
+          bullets: [
+            "Follow the prepared meeting.",
+          ],
+        },
+        {
+          title: "Prepare to Go Home",
+          timeLabel: "1:35–2:20",
+          matchNames: ["Television", "Bus"],
+          bullets: [
+            "Begin dismissal routines.",
+            "Pack student belongings.",
+            "Check communication folders and backpacks.",
+            "Follow individual dismissal procedures.",
+            "Shoes.",
+            "Socks.",
+            "Keep students supervised and in the classroom until they are dismissed.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const SUBSTITUTE_GENERAL_ENTRY = {
+  title: "General Guidance",
+  bullets: [
+    "Keep the students safe, supervised, and engaged.",
+    "Follow the visual schedule and keep the routine calm and predictable.",
+    "The exact academic expectations are less important than maintaining structure throughout the day.",
+  ],
 };
 
 const ENGLISH_UNIQUE_IMAGES = [
@@ -142,7 +349,9 @@ const settingsPanel = document.getElementById("settingsPanel");
 const toggleEditMode = document.getElementById("toggleEditMode");
 const toggleShowFullSchedule = document.getElementById("toggleShowFullSchedule");
 const toggleShowNowNext = document.getElementById("toggleShowNowNext");
+const toggleSubstitute = document.getElementById("toggleSubstitute");
 const btnReset = document.getElementById("btnReset");
+const subsLauncher = document.getElementById("subsLauncher");
 
 const videosOverlay = document.getElementById("videosOverlay");
 const closeVideos = document.getElementById("closeVideos");
@@ -196,6 +405,9 @@ let editingStepIndex = null;
 let lastActiveId = null;
 let currentActivity = null;
 let floatZCounter = 900;
+const SUBSTITUTE_ENTRIES = SUBSTITUTE_GUIDE.sections.flatMap(section =>
+  section.entries.map(entry => ({ ...entry, sectionTitle: section.title }))
+);
 
 // Timer animation state
 let timerState = null; // { activeStartSec, nextStartSec } or null
@@ -253,6 +465,9 @@ setupEditModal();
 
 // Details button: prevent drag start, open popup on click
 btnDetails.addEventListener("mousedown", (e) => e.stopPropagation());
+currentIcon.addEventListener("mousedown", (e) => {
+  if (isSubstituteModeEnabled()) e.stopPropagation();
+});
 btnDetails.addEventListener("click", () => {
   if (currentActivity && Array.isArray(currentActivity.steps) && currentActivity.steps.length) {
     renderDetailsWindow(currentActivity);
@@ -308,6 +523,16 @@ toggleShowNowNext.addEventListener("change", () => {
   syncSettingsUI();
 });
 
+toggleSubstitute.addEventListener("change", () => {
+  state.preferences = {
+    ...getPreferences(),
+    substituteMode: toggleSubstitute.checked,
+  };
+  saveState();
+  if (!toggleSubstitute.checked) closeSubstituteWindows();
+  render();
+});
+
 btnReset.addEventListener("click", () => {
   if (!editMode) return;
   if (!confirm("Reset schedule to defaults?")) return;
@@ -355,6 +580,22 @@ btnWebsites.addEventListener("click", () => openOverlay(websitesOverlay));
 closeWebsites.addEventListener("click", () => closeOverlay(websitesOverlay));
 websitesOverlay.addEventListener("click", (e) => { if (e.target === websitesOverlay) closeOverlay(websitesOverlay); });
 
+subsLauncher.addEventListener("click", () => {
+  if (!isSubstituteModeEnabled()) return;
+  openSubstituteDocumentWindow();
+});
+
+currentIcon.addEventListener("click", () => {
+  if (!isSubstituteModeEnabled() || !currentActivity) return;
+  openSubstituteDirectionsWindow(currentActivity);
+});
+currentIcon.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  if (!isSubstituteModeEnabled() || !currentActivity) return;
+  e.preventDefault();
+  openSubstituteDirectionsWindow(currentActivity);
+});
+
 /* ------------------ Rendering ------------------ */
 
 function render(){
@@ -369,6 +610,7 @@ function render(){
 
 function renderCard(a){
   const hasSteps = Array.isArray(a.steps) && a.steps.length > 0;
+  const substituteEnabled = isSubstituteModeEnabled() && !editMode;
 
   const card = document.createElement("div");
   card.className = "card" + (editMode ? " editable edit-mode" : "") + (hasSteps ? " has-steps" : "");
@@ -381,9 +623,24 @@ function renderCard(a){
   }
 
   const img = document.createElement("img");
-  img.className = "card-icon";
+  img.className = "card-icon" + (substituteEnabled ? " substitute-hotspot" : "");
   img.src = a.icon;
-  img.alt = "";
+  img.alt = substituteEnabled ? `Open substitute directions for ${a.name}` : "";
+  if (substituteEnabled) {
+    img.tabIndex = 0;
+    img.setAttribute("role", "button");
+    img.setAttribute("aria-label", `Open substitute directions for ${a.name}`);
+    img.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openSubstituteDirectionsWindow(a);
+    });
+    img.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      e.stopPropagation();
+      openSubstituteDirectionsWindow(a);
+    });
+  }
 
   const meta = document.createElement("div");
   meta.className = "card-meta";
@@ -631,6 +888,7 @@ function setCurrentDisplay(activity, remainingMinutes){
   if (!activity){
     currentActivity = null;
     currentIcon.src = "";
+    currentIcon.alt = "";
     currentIcon.style.visibility = "hidden";
     currentName.textContent = "-";
     currentRemaining.textContent = "-";
@@ -638,17 +896,20 @@ function setCurrentDisplay(activity, remainingMinutes){
     clearTimerState();
     btnDetails.classList.add("hidden");
     currentBox.classList.remove("has-steps");
+    syncCurrentIconSubstituteState();
     return;
   }
   currentActivity = activity;
   currentIcon.style.visibility = "visible";
   currentIcon.src = activity.icon;
+  currentIcon.alt = "";
   currentName.textContent = activity.name;
   currentRemaining.textContent = formatRemaining(remainingMinutes);
 
   const hasSteps = Array.isArray(activity.steps) && activity.steps.length > 0;
   btnDetails.classList.toggle("hidden", !hasSteps);
   currentBox.classList.toggle("has-steps", hasSteps);
+  syncCurrentIconSubstituteState();
 }
 
 function setNextDisplay(activity){
@@ -759,6 +1020,202 @@ function moveWithinBoard(el, left, top){
   const clampedTop = clamp(top, pad, maxTop);
   el.style.left = `${clampedLeft}px`;
   el.style.top = `${clampedTop}px`;
+}
+
+/* ------------------ Substitute directions ------------------ */
+
+function isSubstituteModeEnabled(){
+  return !!getPreferences().substituteMode;
+}
+
+function closeSubstituteWindows(){
+  floatLayer.querySelectorAll(".substitute-window").forEach(el => el.remove());
+}
+
+function syncCurrentIconSubstituteState(){
+  const enabled = isSubstituteModeEnabled() && !!currentActivity;
+  currentIcon.classList.toggle("substitute-hotspot", enabled);
+  if (enabled) {
+    currentIcon.tabIndex = 0;
+    currentIcon.setAttribute("role", "button");
+    currentIcon.setAttribute("aria-label", `Open substitute directions for ${currentActivity.name}`);
+    currentIcon.alt = `Open substitute directions for ${currentActivity.name}`;
+  } else {
+    currentIcon.removeAttribute("tabindex");
+    currentIcon.removeAttribute("role");
+    currentIcon.removeAttribute("aria-label");
+    currentIcon.alt = "";
+  }
+}
+
+function matchesSubstituteEntry(activity, entry){
+  if (!activity || !entry) return false;
+  const matchNames = Array.isArray(entry.matchNames) ? entry.matchNames : [];
+  const matchTimes = Array.isArray(entry.matchTimes) ? entry.matchTimes : [];
+  if (matchNames.length === 0 && matchTimes.length === 0) return false;
+  const nameMatch = matchNames.length === 0 || matchNames.includes(activity.name);
+  const timeMatch = matchTimes.length === 0 || matchTimes.includes(activity.time);
+  return nameMatch && timeMatch;
+}
+
+function getSubstituteEntryForActivity(activity){
+  if (!activity) return null;
+  return SUBSTITUTE_ENTRIES.find(entry => matchesSubstituteEntry(activity, entry)) || null;
+}
+
+function createSubstituteEntryCard(entry){
+  const card = document.createElement("section");
+  card.className = "substitute-entry";
+
+  if (entry.timeLabel) {
+    const time = document.createElement("div");
+    time.className = "substitute-entry-time";
+    time.textContent = entry.timeLabel;
+    card.appendChild(time);
+  }
+
+  const title = document.createElement("div");
+  title.className = "substitute-entry-title";
+  title.textContent = entry.title;
+  card.appendChild(title);
+
+  const list = document.createElement("ul");
+  (entry.bullets || []).forEach(text => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    list.appendChild(item);
+  });
+  card.appendChild(list);
+
+  return card;
+}
+
+function createSubstituteDirectionsContent(activity){
+  const entry = getSubstituteEntryForActivity(activity);
+  const wrap = document.createElement("div");
+  wrap.className = "substitute-doc";
+
+  const title = document.createElement("div");
+  title.className = "substitute-doc-title";
+  title.textContent = activity?.name || SUBSTITUTE_GENERAL_ENTRY.title;
+  wrap.appendChild(title);
+
+  if (entry?.sectionTitle) {
+    const section = document.createElement("div");
+    section.className = "substitute-doc-subtitle";
+    section.textContent = entry.sectionTitle;
+    wrap.appendChild(section);
+  }
+
+  if (!entry) {
+    const note = document.createElement("div");
+    note.className = "substitute-doc-note";
+    note.textContent = "No event-specific substitute note was added for this activity, so use the general classroom guidance below.";
+    wrap.appendChild(note);
+  }
+
+  wrap.appendChild(createSubstituteEntryCard(entry || SUBSTITUTE_GENERAL_ENTRY));
+  return wrap;
+}
+
+function createSubstituteDocumentContent(){
+  const wrap = document.createElement("div");
+  wrap.className = "substitute-doc";
+
+  const title = document.createElement("div");
+  title.className = "substitute-doc-title";
+  title.textContent = SUBSTITUTE_GUIDE.title;
+  wrap.appendChild(title);
+
+  const subtitle = document.createElement("div");
+  subtitle.className = "substitute-doc-subtitle";
+  subtitle.textContent = SUBSTITUTE_GUIDE.subtitle;
+  wrap.appendChild(subtitle);
+
+  const note = document.createElement("div");
+  note.className = "substitute-doc-note";
+  note.textContent = `Most important: ${SUBSTITUTE_GUIDE.important}`;
+  wrap.appendChild(note);
+
+  SUBSTITUTE_GUIDE.sections.forEach(section => {
+    const sectionEl = document.createElement("section");
+    sectionEl.className = "substitute-doc-section";
+
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "substitute-doc-section-title";
+    sectionTitle.textContent = section.title;
+    sectionEl.appendChild(sectionTitle);
+
+    section.entries.forEach(entry => {
+      sectionEl.appendChild(createSubstituteEntryCard(entry));
+    });
+
+    wrap.appendChild(sectionEl);
+  });
+
+  return wrap;
+}
+
+function openSubstituteWindow(windowTitle, bodyContent, { width = 460, height = 360 } = {}){
+  closeSubstituteWindows();
+
+  const frame = document.createElement("div");
+  frame.className = "float substitute-float substitute-window";
+  frame.style.width = `${Math.min(width, window.innerWidth - 16)}px`;
+  frame.style.height = `${Math.min(height, window.innerHeight - 16)}px`;
+  frame.style.left = `${Math.max(8, (window.innerWidth - frame.offsetWidth) / 2)}px`;
+  frame.style.top = `${Math.max(8, (window.innerHeight - height) / 2)}px`;
+
+  const header = document.createElement("div");
+  header.className = "float-header";
+
+  const title = document.createElement("div");
+  title.className = "float-title";
+  title.textContent = windowTitle;
+
+  const close = document.createElement("button");
+  close.className = "float-close";
+  close.textContent = "✕";
+  close.addEventListener("click", () => frame.remove());
+
+  header.appendChild(title);
+  header.appendChild(close);
+
+  const body = document.createElement("div");
+  body.className = "float-body";
+  body.appendChild(bodyContent);
+
+  frame.appendChild(header);
+  frame.appendChild(body);
+
+  const resize = document.createElement("div");
+  resize.className = "float-resize";
+  frame.appendChild(resize);
+
+  floatLayer.appendChild(frame);
+  frame.style.left = `${Math.max(8, (window.innerWidth - frame.offsetWidth) / 2)}px`;
+  frame.style.top = `${Math.max(8, (window.innerHeight - frame.offsetHeight) / 2)}px`;
+
+  setupFreeResize(frame, resize);
+  dragWithinBoard(frame, header);
+}
+
+function openSubstituteDirectionsWindow(activity){
+  if (!isSubstituteModeEnabled() || !activity) return;
+  openSubstituteWindow(
+    `${activity.name} Directions`,
+    createSubstituteDirectionsContent(activity),
+    { width: 460, height: 360 }
+  );
+}
+
+function openSubstituteDocumentWindow(){
+  if (!isSubstituteModeEnabled()) return;
+  openSubstituteWindow(
+    "Substitute Directions",
+    createSubstituteDocumentContent(),
+    { width: 720, height: Math.min(680, window.innerHeight - 24) }
+  );
 }
 
 /* ------------------ Videos ------------------ */
@@ -2323,7 +2780,10 @@ function syncSettingsUI(){
   toggleEditMode.checked = editMode;
   toggleShowFullSchedule.checked = !!prefs.showFullSchedule;
   toggleShowNowNext.checked = !!prefs.showNowNext;
+  toggleSubstitute.checked = !!prefs.substituteMode;
   btnReset.classList.toggle("hidden", !editMode);
+  subsLauncher.classList.toggle("hidden", !prefs.substituteMode);
+  syncCurrentIconSubstituteState();
 }
 
 function setSettingsPanelOpen(isOpen, focusButton = false){

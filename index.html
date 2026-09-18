@@ -48,6 +48,10 @@
                 <input type="checkbox" id="toggleShowNowNext" />
                 <span>Show Now / Next</span>
               </label>
+              <label class="settings-toggle" for="toggleSubstitute">
+                <input type="checkbox" id="toggleSubstitute" />
+                <span>Substitute</span>
+              </label>
             </div>
           </div>
         </div>
@@ -78,6 +82,11 @@
       <div class="current-hint">Drag me</div>
       <div class="timer-resize" id="timerResize"></div>
     </div>
+
+    <button class="subs-launcher hidden" id="subsLauncher" aria-label="Open substitute teacher directions">
+      <span class="subs-launcher-mark">?</span>
+      <span class="subs-launcher-label">SUBS CLICK HERE</span>
+    </button>
 
 <div class="modal-overlay hidden" id="videosOverlay" role="dialog" aria-modal="true">
   <div class="modal" aria-label="Video library">
